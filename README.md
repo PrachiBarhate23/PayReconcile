@@ -506,6 +506,31 @@ Stripe signature verification
 
 Idempotent webhook processing
 
+🛡 Role-Based Access Control (RBAC)
+👤 User Access
+
+View own orders
+
+View own payments
+
+View ledger entries (related to their transactions)
+
+View reconciliation results (read-only)
+
+👨‍💼 Admin Access
+
+View all orders across users
+
+View all payments
+
+Access global ledger (full audit trail)
+
+View all webhook logs (Stripe events)
+
+Trigger manual reconciliation
+
+Monitor system-wide mismatches and recovery actions
+
 
 
 📈 Why This Project Matters
