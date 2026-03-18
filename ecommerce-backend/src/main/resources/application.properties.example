@@ -1,0 +1,8 @@
+# Replace with your actual values
+spring.data.mongodb.uri=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/ecommerce?retryWrites=true&w=majority
+spring.application.name=ecommerce-backend
+server.port=9091
+stripe.publishable.key=your_stripe_publishable_key_here
+stripe.secret.key=your_stripe_secret_key_here
+stripe.webhook.secret=your_stripe_webhook_secret_here
+logging.level.org.springframework.security=TRACE

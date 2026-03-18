@@ -1,0 +1,7 @@
+# Exclude non-project directories
+journalApp/
+Screenshot_4.png
+
+# OS files
+.DS_Store
+Thumbs.db
