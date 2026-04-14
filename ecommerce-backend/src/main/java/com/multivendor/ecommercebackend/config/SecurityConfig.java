@@ -69,6 +69,9 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        // Public endpoints required for AWS Load Balancer Health Checks
+                        .requestMatchers("/", "/health", "/api/health").permitAll()
+
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // Stripe webhook endpoint (public)
@@ -93,7 +96,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowCredentials(true);
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

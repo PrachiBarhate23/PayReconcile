@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Eye, CreditCard, RotateCw, ShoppingCart, Plus } from "lucide-react";
+import { Eye, CreditCard, RotateCw, ShoppingCart, Plus, User, Package, DollarSign, X, CheckCircle2 } from "lucide-react";
 import { StatusBadge } from "../StatusBadge";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { EmptyState } from "../EmptyState";
@@ -119,7 +119,7 @@ export function OrdersPage() {
         <EmptyState
           icon={ShoppingCart}
           title="No Orders"
-          description="Orders will appear here once created."
+          message="Orders will appear here once created."
         />
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
@@ -212,88 +212,127 @@ export function OrdersPage() {
       {/* Create Order Modal */}
       {/* Create Order Modal */}
 {showCreateModal && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl p-8 w-[460px] shadow-2xl border border-gray-200">
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    {/* Backdrop */}
+    <div 
+      className="absolute inset-0 bg-gray-900/40 backdrop-blur-md transition-opacity"
+      onClick={() => setShowCreateModal(false)}
+    ></div>
 
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        Create New Order
-      </h2>
+    {/* Modal Container */}
+    <div className="relative w-full max-w-md transform overflow-hidden rounded-[24px] bg-white p-8 text-left align-middle shadow-2xl transition-all border border-gray-100">
+      
+      {/* Premium Decorative Header Gradient */}
+      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
 
-      <div className="space-y-5">
-
-        {/* Username */}
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8 mt-2">
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-2">
-            Username
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            New Order
+          </h2>
+          <p className="text-sm text-gray-500 mt-1 font-medium">
+            Enter the transaction details below.
+          </p>
+        </div>
+        <button 
+          onClick={() => setShowCreateModal(false)}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-700"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        {/* Username Input Group */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700">
+            Customer Username
           </label>
-          <input
-            type="text"
-            value={newOrder.username}
-            onChange={(e) =>
-              setNewOrder({
-                ...newOrder,
-                username: e.target.value,
-              })
-            }
-            placeholder="Enter customer username"
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-          />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <User className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
+            <input
+              type="text"
+              value={newOrder.username}
+              onChange={(e) => setNewOrder({ ...newOrder, username: e.target.value })}
+              placeholder="e.g. johndoe123"
+              className="block w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium sm:text-sm"
+            />
+          </div>
         </div>
 
-        {/* Quantity */}
-        <div>
-          <label className="block text-sm font-medium text-gray-600 mb-2">
+        {/* Quantity Input Group */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700">
             Quantity
           </label>
-          <input
-            type="number"
-            value={newOrder.quantity}
-            onChange={(e) =>
-              setNewOrder({
-                ...newOrder,
-                quantity: Number(e.target.value),
-              })
-            }
-            placeholder="Enter quantity"
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-          />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Package className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
+            <input
+              type="number"
+              min="1"
+              value={newOrder.quantity}
+              onChange={(e) => setNewOrder({ ...newOrder, quantity: Number(e.target.value) })}
+              placeholder="1"
+              className="block w-full pl-11 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium sm:text-sm"
+            />
+          </div>
         </div>
 
-        {/* Amount */}
-        <div>
-          <label className="block text-sm font-medium text-gray-600 mb-2">
-            Amount ($)
+        {/* Amount Input Group */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700">
+            Amount
           </label>
-          <input
-            type="number"
-            value={newOrder.amount}
-            onChange={(e) =>
-              setNewOrder({
-                ...newOrder,
-                amount: Number(e.target.value),
-              })
-            }
-            placeholder="Enter amount"
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-          />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <DollarSign className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+            </div>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={newOrder.amount}
+              onChange={(e) => setNewOrder({ ...newOrder, amount: Number(e.target.value) })}
+              placeholder="0.00"
+              className="block w-full pl-11 pr-16 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium sm:text-sm"
+            />
+            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+              <span className="text-sm font-semibold text-gray-400">USD</span>
+            </div>
+          </div>
         </div>
+      </div>
 
+      {/* Total Calculation / Summary Card */}
+      <div className="mt-8 mb-6 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50">
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-semibold text-blue-900/70">Total Value</span>
+          <span className="text-xl font-bold tracking-tight text-blue-900">
+            ${((newOrder.amount || 0) * (newOrder.quantity || 1)).toFixed(2)}
+          </span>
+        </div>
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-end gap-3 mt-8">
+      <div className="flex gap-3">
         <button
           onClick={() => setShowCreateModal(false)}
-          className="px-5 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+          className="w-1/3 px-4 py-3.5 rounded-xl font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all focus:outline-none focus:ring-2 focus:ring-gray-200"
         >
           Cancel
         </button>
-
         <button
           onClick={handleCreateOrder}
-          className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm"
+          disabled={!newOrder.username || newOrder.amount <= 0 || newOrder.quantity <= 0}
+          className="w-2/3 px-4 py-3.5 flex justify-center items-center gap-2 rounded-xl font-semibold text-white bg-gray-900 hover:bg-black transition-all focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
         >
-          Create Order
+          <CheckCircle2 className="w-5 h-5 text-gray-400 disabled:text-white" />
+          Confirm Order
         </button>
       </div>
 

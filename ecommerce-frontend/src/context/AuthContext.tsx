@@ -36,9 +36,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Optional: check expiration
         if (decoded.exp * 1000 > Date.now()) {
           setToken(storedToken);
+          // 🔥 Remove "ROLE_" prefix from role (backend sends "ROLE_ADMIN", we need "ADMIN")
+          const cleanRole = decoded.role.replace("ROLE_", "");
           setUser({
             username: decoded.sub,
-            role: decoded.role,
+            role: cleanRole,
           });
         } else {
           localStorage.removeItem("token");
@@ -54,10 +56,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(token);
 
     const decoded = jwtDecode<JwtPayload>(token);
+    // 🔥 Remove "ROLE_" prefix from role (backend sends "ROLE_ADMIN", we need "ADMIN")
+    const cleanRole = decoded.role.replace("ROLE_", "");
 
     setUser({
       username: decoded.sub,
-      role: decoded.role,
+      role: cleanRole,
     });
   };
 
