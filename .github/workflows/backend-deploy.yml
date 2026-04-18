@@ -44,4 +44,5 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           sudo systemctl restart payreconcile
-          sudo systemctl status payreconcile
+          sleep 5
+          sudo systemctl is-active payreconcile
