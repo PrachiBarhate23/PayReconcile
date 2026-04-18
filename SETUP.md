@@ -377,3 +377,15 @@ Proprietary - All rights reserved
 
 **Last Updated**: April 2026
 **Version**: 2.0.0
+
+
+
+. What exactly is a "Chargeback"?
+Imagine a customer buys a $150 item from your platform using their credit card. A week later, they decide to call their credit card company (like Visa or MasterCard) and say, "I never bought this! It's fraud!"
+
+The credit card company will immediately take that $150 back from your bank account by force. This forced reversal is called a Chargeback. As a business owner, chargebacks are very dangerous because you lose the product and the money. That is why your Chargeback Management Page is so important! It allows the platform administrators to instantly see disputes, upload shipping receipts as "evidence" to fight the bank, and try to win the money back.
+
+2. What are "Settlement Reports"?
+When a customer buys something on Monday with a credit card, the money does not instantly go into the business's bank account. Instead, the payment gateway (like Stripe) holds onto it. At the end of the week, Stripe takes all the thousands of tiny payments, subtracts their tax/fees, and dumps one massive payout into your actual bank account. This massive payout is called a Settlement.
+
+Your Settlement Reports Page is where the business accountants go to see these big batch payouts. When you hit the + Demo Settlement button I just added, it pretends that Stripe just deposited $10,000 into the company bank account, giving you a beautiful financial summary of total revenue versus total taxes!

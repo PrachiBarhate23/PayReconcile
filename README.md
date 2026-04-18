@@ -559,6 +559,22 @@ Transaction integrity guarantees
 This is not a CRUD project —
  This is a production-style financial control system.
 
+🚀 Production Deployment (AWS EC2)
+
+The system is deployed on a manually managed Amazon Linux 2023 EC2 instance using a Same-Origin Architecture.
+
+### Architecture Highlights
+- **Nginx Reverse Proxy:** Serves the React frontend on Port 80 and proxies `/api` requests to the Spring Boot backend on Port 5000.
+- **Systemd Service:** The Spring Boot JAR runs as a managed service (`payreconcile.service`) with environment-injected secrets.
+- **Same-Origin Policy:** By serving both frontend and backend from the same IP, all CORS issues are eliminated without needing complex configurations.
+
+### Deployment Summary
+- **Frontend Build:** `npm run build` serves from `/var/www/payreconcile`.
+- **Backend Build:** `mvn package` runs from `/opt/payreconcile/backend/app.jar`.
+- **Infrastructure:** AWS EC2 (t3.micro), Security Groups for SSH (22) and HTTP (80).
+
+For detailed maintenance and redeployment commands, see [FINAL_STEPS.md](./FINAL_STEPS.md).
+
 🌟 Future Improvements
 Docker containerization
 

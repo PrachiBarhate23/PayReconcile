@@ -29,10 +29,19 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 🚀 Skip JWT entirely for Stripe Webhooks
-        if (request.getServletPath().equals("/api/webhook/stripe")
-                && request.getMethod().equals("POST")) {
+        String path = request.getServletPath();
+        String method = request.getMethod();
 
+        // 🚀 Skip JWT entirely for public/health endpoints
+        boolean isPublic =
+                path.equals("/") ||
+                path.equals("/health") ||
+                path.equals("/api/health") ||
+                path.startsWith("/api/auth/") ||
+                (path.equals("/api/webhook/stripe") && method.equals("POST")) ||
+                method.equals("OPTIONS");
+
+        if (isPublic) {
             filterChain.doFilter(request, response);
             return;
         }

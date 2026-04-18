@@ -96,9 +96,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOriginPatterns(List.of(
+                "https://main.d1b0nb73b1rcr8.amplifyapp.com",
+                "https://d1hg9sdu8nw660.cloudfront.net",
+                "http://localhost:5173",
+                "http://localhost:3000"
+        ));
         config.setAllowCredentials(true);
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source =
