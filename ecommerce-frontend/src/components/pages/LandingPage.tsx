@@ -122,6 +122,7 @@ export function LandingPage() {
             <p className="lp-card-text">Intelligently route transactions across multiple gateways to ensure maximum approval rates.</p>
           </div>
         </div>
+      </section>
       {/* How It Works Section */}
       <section id="how-it-works" className="lp-section" style={{ background: 'var(--surface2)', borderRadius: '32px' }}>
         <h2 className="lp-section-title">How It Works</h2>
