@@ -3,6 +3,7 @@ import { Eye, RotateCw, CreditCard } from "lucide-react";
 import { StatusBadge } from "../StatusBadge";
 import { ConfirmationModal } from "../ConfirmationModal";
 import api from "../../api/api"; // axios instance
+import { formatDateTime } from "../../utils/formatters";
 
 /**
  * Payment DTO coming from backend
@@ -137,7 +138,7 @@ export function PaymentsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-600">
-                      {new Date(payment.createdTime).toLocaleString()}
+                      {formatDateTime(payment.createdTime)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
