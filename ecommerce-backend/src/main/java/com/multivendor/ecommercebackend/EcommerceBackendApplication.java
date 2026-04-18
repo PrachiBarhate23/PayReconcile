@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class EcommerceBackendApplication {
     public static void main(String[] args) {
+        // Trigger deployment check
         SpringApplication.run(EcommerceBackendApplication.class, args);
     }
 }
