@@ -17,7 +17,6 @@ export function LandingPage() {
 
   return (
     <div className="lp-root">
-      // Trigger deployment
       {/* Navigation */}
       <nav className="lp-nav">
         <div className="lp-logo">
