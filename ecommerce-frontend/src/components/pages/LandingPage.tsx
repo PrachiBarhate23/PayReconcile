@@ -26,6 +26,16 @@ export function LandingPage() {
           <a href="#features" className="lp-nav-link">Features</a>
           <a href="#how-it-works" className="lp-nav-link">How it Works</a>
           <a href="#pricing" className="lp-nav-link">Pricing</a>
+          <span style={{ 
+            fontSize: '0.7rem', 
+            background: 'var(--green-l)', 
+            color: 'var(--green)', 
+            padding: '2px 8px', 
+            borderRadius: '12px',
+            border: '1px solid var(--green-b)',
+            fontWeight: 800,
+            fontFamily: 'var(--mono)'
+          }}>CI/CD ACTIVE</span>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <button className="lp-btn-secondary" onClick={() => navigate("/login")}>
@@ -110,6 +120,43 @@ export function LandingPage() {
             </div>
             <h3 className="lp-card-title">Real-Time Routing</h3>
             <p className="lp-card-text">Intelligently route transactions across multiple gateways to ensure maximum approval rates.</p>
+          </div>
+        </div>
+      {/* How It Works Section */}
+      <section id="how-it-works" className="lp-section" style={{ background: 'var(--surface2)', borderRadius: '32px' }}>
+        <h2 className="lp-section-title">How It Works</h2>
+        <div className="lp-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>1️⃣</div>
+            <h4 className="lp-card-title">Connect Gateway</h4>
+            <p className="lp-card-text">Connect your Stripe or AWS accounts in seconds with our secure OAuth flow.</p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>2️⃣</div>
+            <h4 className="lp-card-title">Run Reconciliation</h4>
+            <p className="lp-card-text">Our engine scans for discrepancies between payments and your database records.</p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>3️⃣</div>
+            <h4 className="lp-card-title">Auto-Recover</h4>
+            <p className="lp-card-text">Mismatches are automatically resolved via refunds or state corrections.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="lp-section">
+        <h2 className="lp-section-title">Simple Transparent Pricing</h2>
+        <div className="lp-grid" style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div className="lp-card" style={{ textAlign: 'center', borderColor: 'var(--blue)' }}>
+            <div className="lp-tag">Standard</div>
+            <div style={{ fontSize: '3rem', fontWeight: 800, margin: '1rem 0' }}>$49<span style={{ fontSize: '1rem', color: 'var(--muted)' }}>/mo</span></div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '2rem 0', textAlign: 'left', display: 'inline-block' }}>
+              <li style={{ marginBottom: '0.5rem' }}>✅ Unlimited Reconciliation</li>
+              <li style={{ marginBottom: '0.5rem' }}>✅ Real-time Dashboards</li>
+              <li style={{ marginBottom: '0.5rem' }}>✅ Email & SMS Alerts</li>
+            </ul>
+            <button className="lp-btn-primary" style={{ width: '100%' }}>Choose Plan</button>
           </div>
         </div>
       </section>
