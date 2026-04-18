@@ -23,10 +23,6 @@ export function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Get plan from URL if arriving from Landing Page
-  const queryParams = new URLSearchParams(window.location.search);
-  const selectedPlan = queryParams.get("plan");
-
   injectStyles();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -45,8 +41,8 @@ export function RegisterPage() {
       // Backend api might only destructure 'username' and 'password' currently.
       // But we pass the rest too just in case backend gets updated to accept them.
       await register(username, password);
-      // Navigate to login with success flag
-      navigate("/login?registered=true");
+      // Navigate to login on success
+      navigate("/login");
     } catch (err: any) {
       setError("Registration failed. Try a different username or email.");
     } finally { setLoading(false); }
@@ -55,7 +51,7 @@ export function RegisterPage() {
   return (
     <div className="auth-root">
       <div className="auth-card">
-        <p className="auth-tag">{selectedPlan ? `Plan: ${selectedPlan}` : "Join The Platform"}</p>
+        <p className="auth-tag">Join The Platform</p>
         <h2 className="auth-title">Create Account</h2>
         <div className="auth-divider" />
         

@@ -147,66 +147,17 @@ export function LandingPage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="lp-section">
-        <h2 className="lp-section-title">Scale Your Finances</h2>
-        <div className="lp-grid">
-          {/* Starter Plan */}
-          <div className="lp-card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div className="bg-blue-soft lp-card-icon">
-              <Zap size={24} />
-            </div>
-            <h3 className="lp-card-title">Starter</h3>
-            <p className="lp-card-text">Perfect for early stage startups.</p>
-            <div style={{ margin: '1.5rem 0', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800 }}>$0</span>
-              <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>/mo</span>
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', flexGrow: 1, fontSize: '0.9rem', color: 'var(--text2)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li>✅ 1,000 Transactions/mo</li>
-              <li>✅ Standard Dashboard</li>
-              <li>✅ Email Support</li>
-              <li style={{ opacity: 0.5 }}>❌ Advanced Analytics</li>
+        <h2 className="lp-section-title">Simple Transparent Pricing</h2>
+        <div className="lp-grid" style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div className="lp-card" style={{ textAlign: 'center', borderColor: 'var(--blue)' }}>
+            <div className="lp-tag">Standard</div>
+            <div style={{ fontSize: '3rem', fontWeight: 800, margin: '1rem 0' }}>$49<span style={{ fontSize: '1rem', color: 'var(--muted)' }}>/mo</span></div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '2rem 0', textAlign: 'left', display: 'inline-block' }}>
+              <li style={{ marginBottom: '0.5rem' }}>✅ Unlimited Reconciliation</li>
+              <li style={{ marginBottom: '0.5rem' }}>✅ Real-time Dashboards</li>
+              <li style={{ marginBottom: '0.5rem' }}>✅ Email & SMS Alerts</li>
             </ul>
-            <button className="lp-btn-secondary" style={{ width: '100%' }} onClick={() => navigate("/register?plan=starter")}>Get Started</button>
-          </div>
-
-          {/* Professional Plan */}
-          <div className="lp-card" style={{ display: 'flex', flexDirection: 'column', border: '2px solid var(--blue)', transform: 'scale(1.05)', zIndex: 2 }}>
-            <div className="lp-tag" style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', margin: 0 }}>Popular</div>
-            <div className="bg-purple-soft lp-card-icon">
-              <TrendingUp size={24} />
-            </div>
-            <h3 className="lp-card-title">Professional</h3>
-            <p className="lp-card-text">Best for scaling businesses.</p>
-            <div style={{ margin: '1.5rem 0', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800 }}>$49</span>
-              <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>/mo</span>
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', flexGrow: 1, fontSize: '0.9rem', color: 'var(--text2)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li>✅ Unlimited Transactions</li>
-              <li>✅ Real-time reconciliation</li>
-              <li>✅ Chargeback Protection</li>
-              <li>✅ Priority Support</li>
-            </ul>
-            <button className="lp-btn-primary" style={{ width: '100%' }} onClick={() => navigate("/register?plan=pro")}>Start 14-Day Trial</button>
-          </div>
-
-          {/* Enterprise Plan */}
-          <div className="lp-card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div className="bg-green-soft lp-card-icon">
-              <ShieldCheck size={24} />
-            </div>
-            <h3 className="lp-card-title">Enterprise</h3>
-            <p className="lp-card-text">For multinational corporations.</p>
-            <div style={{ margin: '1.5rem 0', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800 }}>Custom</span>
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', flexGrow: 1, fontSize: '0.9rem', color: 'var(--text2)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li>✅ Dedicated Node Instance</li>
-              <li>✅ Custom Auth Integrations</li>
-              <li>✅ SLA Guarantee</li>
-              <li>✅ Account Manager</li>
-            </ul>
-            <button className="lp-btn-secondary" style={{ width: '100%' }} onClick={() => window.location.href='mailto:sales@payreconcile.com'}>Contact Sales</button>
+            <button className="lp-btn-primary" style={{ width: '100%' }}>Choose Plan</button>
           </div>
         </div>
       </section>

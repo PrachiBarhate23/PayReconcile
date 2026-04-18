@@ -5,7 +5,6 @@ import { ConfirmationModal } from "../ConfirmationModal";
 import { EmptyState } from "../EmptyState";
 import api from "../../api/api";
 import StripePaymentForm from "../StripePaymentForm";
-import { formatDateTime } from "../../utils/formatters";
 
 
 interface Order {
@@ -170,7 +169,7 @@ export function OrdersPage() {
                     <StatusBadge status={order.status} type="order" />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {formatDateTime(order.createdAt)}
+                    {new Date(order.createdAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">

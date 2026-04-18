@@ -21,9 +21,6 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const queryParams = new URLSearchParams(window.location.search);
-  const isNewlyRegistered = queryParams.get("registered") === "true";
-
   injectStyles();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -53,12 +50,6 @@ export function LoginPage() {
         <p className="auth-tag">Welcome Back</p>
         <h2 className="auth-title">Sign In</h2>
         <div className="auth-divider" />
-
-        {isNewlyRegistered && (
-          <div className="auth-error" style={{ background: 'var(--green-l)', borderLeftColor: 'var(--green)', color: 'var(--green)', borderColor: 'var(--green-b)' }}>
-            ✓ Account created! Please sign in.
-          </div>
-        )}
 
         {error && <div className="auth-error">⚠ {error}</div>}
 
