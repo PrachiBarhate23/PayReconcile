@@ -11,16 +11,16 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    @Value("${spring.mail.host}")
+    @Value("${spring.mail.host:email-smtp.us-east-1.amazonaws.com}")
     private String host;
 
-    @Value("${spring.mail.port}")
+    @Value("${spring.mail.port:587}")
     private int port;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:AKIAXF34AOXPB4DBLNJD}")
     private String username;
 
-    @Value("${spring.mail.password}")
+    @Value("${spring.mail.password:BNvmWc751a3HNuEk8cJg0Wez12mrt0prJMnseEpxwPBp}")
     private String password;
 
     @Bean
