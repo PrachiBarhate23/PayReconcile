@@ -36,25 +36,21 @@ jobs:
         cd ecommerce-backend
         mvn clean package -DskipTests
 
-    - name: Copy JAR to EC2
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        source: "ecommerce-backend/target/app.jar"
-        target: "/opt/payreconcile/backend"
-        strip_components: 2
+    - name: Prepare Staging Area
+      run: |
+        mkdir -p staging
+        cp ecommerce-backend/target/app.jar staging/
+        cp ecommerce-backend/src/main/resources/application.properties staging/
 
-    - name: Copy Properties to EC2
+    - name: Copy Files to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "ecommerce-backend/src/main/resources/application.properties"
+        source: "staging/*"
         target: "/opt/payreconcile/backend"
-        strip_components: 4
+        strip_components: 1
 
     # - name: Restart Backend Service (Legacy)
     #   uses: appleboy/ssh-action@v1.0.3
