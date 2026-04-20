@@ -1,0 +1,21 @@
+name: Initial Server Setup
+
+on:
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/payreconcile-key.pem
+        chmod 600 ~/.ssh/payreconcile-key.pem
+
+    - name: Run Ansible Setup Playbook
+      run: |
+        cd ansible
+        ansible-playbook -i hosts setup_server.yml --extra-vars "ec2_ip=${{ secrets.EC2_HOST }}"

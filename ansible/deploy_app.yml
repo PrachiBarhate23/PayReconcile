@@ -1,0 +1,16 @@
+---
+- name: Deploy PayReconcile Application
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Ensure backend service is stopped
+      systemd:
+        name: payreconcile
+        state: stopped
+      ignore_errors: yes
+
+    - name: Restart backend service (with new app.jar)
+      systemd:
+        name: payreconcile
+        state: restarted
+        enabled: yes

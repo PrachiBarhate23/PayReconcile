@@ -1,0 +1,13 @@
+[Unit]
+Description=PayReconcile Backend Service
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/payreconcile/backend
+ExecStart=/usr/bin/java -jar app.jar
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

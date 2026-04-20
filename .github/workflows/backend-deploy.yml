@@ -36,12 +36,23 @@ jobs:
         target: "/opt/payreconcile/backend/"
         strip_components: 2
 
-    - name: Restart Backend Service
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          sudo systemctl restart payreconcile
-          sudo systemctl status payreconcile
+    # - name: Restart Backend Service (Legacy)
+    #   uses: appleboy/ssh-action@v1.0.3
+    #   with:
+    #     host: ${{ secrets.EC2_HOST }}
+    #     username: ${{ secrets.EC2_USER }}
+    #     key: ${{ secrets.EC2_SSH_KEY }}
+    #     script: |
+    #       sudo systemctl restart payreconcile
+    #       sudo systemctl status payreconcile
+
+    - name: Setup SSH Key for Ansible
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/payreconcile-key.pem
+        chmod 600 ~/.ssh/payreconcile-key.pem
+
+    - name: Run Ansible Deploy Playbook
+      run: |
+        cd ansible
+        ansible-playbook -i hosts deploy_app.yml --extra-vars "ec2_ip=${{ secrets.EC2_HOST }}"
