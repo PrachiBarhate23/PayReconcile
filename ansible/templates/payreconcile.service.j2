@@ -8,6 +8,8 @@ WorkingDirectory=/opt/payreconcile/backend
 ExecStart=/usr/bin/java -jar app.jar
 Restart=always
 RestartSec=10
+StandardOutput=append:/var/log/payreconcile.log
+StandardError=append:/var/log/payreconcile.log
 
 [Install]
 WantedBy=multi-user.target

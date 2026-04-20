@@ -26,6 +26,18 @@
         group: ubuntu
         mode: '0755'
 
+    - name: Allow HTTP traffic (Port 80)
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+
+    - name: Allow App traffic (Port 5000)
+      ufw:
+        rule: allow
+        port: '5000'
+        proto: tcp
+
     - name: Configure Nginx as Reverse Proxy
       copy:
         dest: /etc/nginx/sites-available/default
