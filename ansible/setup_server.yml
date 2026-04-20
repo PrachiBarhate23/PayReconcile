@@ -1,6 +1,6 @@
 ---
 - name: Setup PayReconcile Server
-  hosts: servers
+  hosts: all
   become: yes
   tasks:
     - name: Update apt cache

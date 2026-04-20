@@ -1,6 +1,6 @@
 ---
 - name: Deploy PayReconcile Application
-  hosts: servers
+  hosts: all
   become: yes
   tasks:
     - name: Ensure backend service is stopped
