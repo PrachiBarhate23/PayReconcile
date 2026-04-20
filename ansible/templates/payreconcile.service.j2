@@ -8,7 +8,7 @@ WorkingDirectory=/opt/payreconcile/backend
 Environment=PORT=5000
 Environment=STRIPE_SECRET_KEY={{ stripe_secret }}
 Environment=STRIPE_PUBLISHABLE_KEY={{ stripe_publishable }}
-ExecStart=/usr/bin/java -jar app.jar
+ExecStart=/usr/bin/java -jar app.jar --spring.config.location=file:/opt/payreconcile/backend/application.properties
 Restart=always
 RestartSec=10
 StandardOutput=append:/var/log/payreconcile.log
