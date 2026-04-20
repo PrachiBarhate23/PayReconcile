@@ -65,4 +65,4 @@ jobs:
     - name: Run Ansible Deploy Playbook
       run: |
         cd ansible
-        ansible-playbook -i hosts deploy_app.yml --extra-vars "ec2_ip=${{ secrets.EC2_HOST }}"
+        ansible-playbook -i hosts.yml deploy_app.yml --extra-vars "ec2_ip=${{ secrets.EC2_HOST }}"

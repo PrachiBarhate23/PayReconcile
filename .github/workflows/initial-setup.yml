@@ -18,4 +18,4 @@ jobs:
     - name: Run Ansible Setup Playbook
       run: |
         cd ansible
-        ansible-playbook -i hosts setup_server.yml --extra-vars "ec2_ip=${{ secrets.EC2_HOST }}"
+        ansible-playbook -i hosts.yml setup_server.yml --extra-vars "ec2_ip=${{ secrets.EC2_HOST }}"
