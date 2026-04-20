@@ -37,10 +37,12 @@ jobs:
         mvn clean package -DskipTests
 
     - name: Prepare Staging Area
+      env:
+        APP_PROPS: ${{ secrets.APPLICATION_PROPERTIES }}
       run: |
         mkdir -p staging
         cp ecommerce-backend/target/app.jar staging/
-        cp ecommerce-backend/src/main/resources/application.properties staging/
+        echo "$APP_PROPS" > staging/application.properties
 
     - name: Copy Files to EC2
       uses: appleboy/scp-action@v0.1.7
