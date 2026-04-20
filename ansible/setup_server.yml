@@ -52,6 +52,7 @@
         content: |
           server {
               listen 80;
+              # Forced update to trigger Nginx restart
               
               root /var/www/payreconcile;
               index index.html;
