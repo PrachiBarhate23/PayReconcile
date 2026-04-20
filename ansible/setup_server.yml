@@ -26,6 +26,20 @@
         group: ubuntu
         mode: '0755'
 
+    - name: Configure Nginx as Reverse Proxy
+      copy:
+        dest: /etc/nginx/sites-available/default
+        content: |
+          server {
+              listen 80;
+              location / {
+                  proxy_pass http://localhost:5000;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+              }
+          }
+      notify: Restart Nginx
+
     - name: Setup Backend Systemd Service
       template:
         src: templates/payreconcile.service.j2
@@ -36,3 +50,8 @@
     - name: Reload Systemd
       systemd:
         daemon_reload: yes
+
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
