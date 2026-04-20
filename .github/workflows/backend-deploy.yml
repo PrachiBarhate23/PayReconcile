@@ -35,6 +35,7 @@ jobs:
       run: |
         cd ecommerce-backend
         mvn clean package -DskipTests
+        cp target/*.jar target/app.jar
 
     - name: Copy JAR to EC2
       uses: appleboy/scp-action@v0.1.7
