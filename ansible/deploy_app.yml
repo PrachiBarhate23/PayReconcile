@@ -20,3 +20,8 @@
         name: payreconcile
         state: started
         enabled: yes
+
+  handlers:
+    - name: Reload Systemd
+      systemd:
+        daemon_reload: yes
