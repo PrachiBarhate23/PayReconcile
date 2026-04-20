@@ -22,8 +22,12 @@ jobs:
         cache-dependency-path: ecommerce-frontend/package-lock.json
 
     - name: Install dependencies and Build
+      env:
+        STRIPE_PUB_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
       run: |
         cd ecommerce-frontend
+        echo "VITE_API_BASE_URL=/api" > .env
+        echo "VITE_STRIPE_PUBLISHABLE_KEY=$STRIPE_PUB_KEY" >> .env
         npm install
         npm run build
 
