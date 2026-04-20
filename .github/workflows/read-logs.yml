@@ -13,15 +13,18 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/payreconcile-key.pem
         chmod 600 ~/.ssh/payreconcile-key.pem
 
-    - name: Fetch Application Logs
+    - name: Fetch Application Logs & Health Check
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          echo "--- RECENT APPLICATION LOGS ---"
-          sudo tail -n 50 /var/log/payreconcile.log || echo "Log file not found yet"
+          echo "--- RECENT APPLICATION LOGS (200 Lines) ---"
+          sudo tail -n 200 /var/log/payreconcile.log || echo "Log file not found yet"
+          echo ""
+          echo "--- LOCAL HEALTH CHECK (Checking port 5000) ---"
+          curl -I http://localhost:5000 || echo "App is NOT responding on port 5000"
           echo ""
           echo "--- SERVICE STATUS ---"
           sudo systemctl status payreconcile
