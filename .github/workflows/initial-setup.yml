@@ -16,6 +16,8 @@ jobs:
         chmod 600 ~/.ssh/payreconcile-key.pem
 
     - name: Run Ansible Setup Playbook
+      env:
+        ANSIBLE_HOST_KEY_CHECKING: 'False'
       run: |
         cd ansible
         ansible-playbook -i hosts.yml setup_server.yml --extra-vars "ec2_ip=${{ secrets.EC2_HOST }}"
