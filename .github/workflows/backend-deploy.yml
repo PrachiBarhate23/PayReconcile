@@ -21,6 +21,16 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Create app parent directory
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          sudo mkdir -p /opt/payreconcile/backend
+          sudo chown -R ubuntu:ubuntu /opt/payreconcile
+
     - name: Build with Maven
       run: |
         cd ecommerce-backend
@@ -33,7 +43,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         source: "ecommerce-backend/target/app.jar"
-        target: "/opt/payreconcile/backend/"
+        target: "/opt/payreconcile/backend" # Removed trailing slash for scp-action
         strip_components: 2
 
     # - name: Restart Backend Service (Legacy)
