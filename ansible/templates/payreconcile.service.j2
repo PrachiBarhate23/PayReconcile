@@ -5,6 +5,9 @@ After=network.target
 [Service]
 User=ubuntu
 WorkingDirectory=/opt/payreconcile/backend
+Environment=PORT=5000
+Environment=STRIPE_SECRET_KEY={{ stripe_secret }}
+Environment=STRIPE_PUBLISHABLE_KEY={{ stripe_publishable }}
 ExecStart=/usr/bin/java -jar app.jar
 Restart=always
 RestartSec=10

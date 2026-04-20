@@ -9,8 +9,14 @@
         state: stopped
       ignore_errors: yes
 
-    - name: Restart backend service (with new app.jar)
+    - name: Update backend service template with env vars
+      template:
+        src: templates/payreconcile.service.j2
+        dest: /etc/systemd/system/payreconcile.service
+      notify: Reload Systemd
+
+    - name: Start backend service
       systemd:
         name: payreconcile
-        state: restarted
+        state: started
         enabled: yes
