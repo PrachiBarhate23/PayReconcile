@@ -64,7 +64,7 @@ export function LoginPage() {
 
           <div className="auth-extras" style={{ animationDelay: '0.35s' }}>
             <label className="checkbox-lbl">
-              <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
+              <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />{" "}
               Remember Me
             </label>
             <Link to="/forgot-password" className="auth-link" style={{ fontWeight: 500 }}>Forgot Password?</Link>

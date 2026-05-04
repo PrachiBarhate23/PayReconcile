@@ -65,11 +65,12 @@ export function DashboardPage() {
         const logs: WebhookLog[] = await getWebhookLogs();
         setRecentActivity(
           logs.slice(0, 5).map(log => {
-            const activityType = log.eventType.includes('failed')
-              ? 'error'
-              : log.eventType.includes('refund')
-              ? 'refund'
-              : 'success';
+            let activityType = 'success';
+            if (log.eventType.includes('failed')) {
+              activityType = 'error';
+            } else if (log.eventType.includes('refund')) {
+              activityType = 'refund';
+            }
             return {
               time: formatDateTime(log.createdAt),
               event: `Webhook received: ${log.eventType}`,

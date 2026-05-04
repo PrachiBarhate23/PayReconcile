@@ -121,17 +121,17 @@ export function LedgerPage() {
                     <StatusBadge status={entry.type} type="ledger" />
                   </td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`text-sm font-medium ${
-                        entry.type === 'CREDIT'
-                          ? 'text-green-600'
-                          : entry.type === 'DEBIT'
-                          ? 'text-red-600'
-                          : 'text-purple-600'
-                      }`}
-                    >
-                      {entry.type === 'CREDIT' ? '+' : '-'}${entry.amount.toFixed(2)}
-                    </span>
+                    {(() => {
+                      let colorClass = 'text-purple-600';
+                      if (entry.type === 'CREDIT') colorClass = 'text-green-600';
+                      else if (entry.type === 'DEBIT') colorClass = 'text-red-600';
+                      
+                      return (
+                        <span className={`text-sm font-medium ${colorClass}`}>
+                          {entry.type === 'CREDIT' ? '+' : '-'}${entry.amount.toFixed(2)}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4 text-sm font-mono text-gray-600">
                     {entry.referenceId}

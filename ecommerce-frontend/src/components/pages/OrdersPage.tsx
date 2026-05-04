@@ -224,9 +224,8 @@ export function OrdersPage() {
           }}
         >
           {/* Backdrop */}
-          <div
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
             aria-label="Close modal"
             onClick={() => setShowCreateModal(false)}
             onKeyDown={(e) => e.key === 'Escape' && setShowCreateModal(false)}
@@ -236,6 +235,10 @@ export function OrdersPage() {
               backgroundColor: "rgba(17, 24, 39, 0.5)",
               backdropFilter: "blur(8px)",
               WebkitBackdropFilter: "blur(8px)",
+              border: "none",
+              margin: 0,
+              padding: 0,
+              cursor: "pointer",
             }}
           />
 
@@ -553,9 +556,8 @@ export function OrdersPage() {
           }}
         >
           {/* Backdrop */}
-          <div
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
             aria-label="Close modal"
             onClick={() => setShowPayModal(false)}
             onKeyDown={(e) => e.key === 'Escape' && setShowPayModal(false)}
@@ -565,6 +567,10 @@ export function OrdersPage() {
               backgroundColor: "rgba(17, 24, 39, 0.5)",
               backdropFilter: "blur(8px)",
               WebkitBackdropFilter: "blur(8px)",
+              border: "none",
+              margin: 0,
+              padding: 0,
+              cursor: "pointer",
             }}
           />
 

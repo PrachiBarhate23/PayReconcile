@@ -14,11 +14,11 @@ function parseDate(value: string | number | number[] | null | undefined): Date |
   if (Array.isArray(value)) {
     const [year, month, day, hour = 0, min = 0, sec = 0] = value;
     const d = new Date(year, month - 1, day, hour, min, sec); // month is 0-indexed in JS
-    return isNaN(d.getTime()) ? null : d;
+    return Number.isNaN(d.getTime()) ? null : d;
   }
 
   const d = new Date(value as string | number);
-  return isNaN(d.getTime()) ? null : d;
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
 export function formatDate(value: string | number | number[] | null | undefined): string {
