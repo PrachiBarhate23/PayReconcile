@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # SonarCloud needs full git history for blame info
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -30,6 +32,15 @@ jobs:
         echo "VITE_STRIPE_PUBLISHABLE_KEY=$STRIPE_PUB_KEY" >> .env
         npm install
         npm run build
+
+    - name: SonarCloud Analysis (Frontend)
+      uses: SonarSource/sonarcloud-github-action@master
+      continue-on-error: true
+      with:
+        projectBaseDir: ecommerce-frontend
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Deploy to EC2
       uses: appleboy/scp-action@v0.1.7

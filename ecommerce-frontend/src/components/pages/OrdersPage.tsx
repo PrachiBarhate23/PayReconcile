@@ -340,27 +340,55 @@ export function OrdersPage() {
   </div>
 )}
       {showPayModal && selectedOrder && (
-  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-      <h2 className="text-lg font-semibold mb-4">
-        Pay for Order {selectedOrder}
-      </h2>
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    {/* Backdrop */}
+    <div
+      className="absolute inset-0 bg-gray-900/40 backdrop-blur-md transition-opacity"
+      onClick={() => setShowPayModal(false)}
+    />
 
-      <StripePaymentForm
-        orderId={selectedOrder}
-        onSuccess={() => {
-          setShowPayModal(false);
-          // ⏳ Wait 2 seconds before fetching orders so the backend Webhook has time to update the db
-          setTimeout(() => fetchOrders(), 2000);
-        }}
-      />
+    {/* Modal Container */}
+    <div className="relative w-full max-w-md transform overflow-hidden rounded-[24px] bg-white p-8 text-left align-middle shadow-2xl transition-all border border-gray-100">
 
-      <button
-        onClick={() => setShowPayModal(false)}
-        className="mt-4 text-gray-500"
-      >
-        Cancel
-      </button>
+      {/* Premium Decorative Header Gradient */}
+      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6 mt-2">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Secure Payment
+          </h2>
+          <p className="text-sm text-gray-500 mt-1 font-medium">
+            Order <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded-md">{selectedOrder.slice(0, 12)}...</span>
+          </p>
+        </div>
+        <button
+          onClick={() => setShowPayModal(false)}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-700"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Stripe Card Element area with styled wrapper */}
+      <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 mb-4">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Card Details</p>
+        <StripePaymentForm
+          orderId={selectedOrder}
+          onSuccess={() => {
+            setShowPayModal(false);
+            // ⏳ Wait 2 seconds before fetching orders so the backend Webhook has time to update the db
+            setTimeout(() => fetchOrders(), 2000);
+          }}
+        />
+      </div>
+
+      {/* Security note */}
+      <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1.5">
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+        256-bit SSL encrypted &middot; Powered by Stripe
+      </p>
     </div>
   </div>
 )}

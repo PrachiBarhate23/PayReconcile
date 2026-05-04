@@ -44,15 +44,15 @@ function ProtectedRoute() {
 function AdminRoute() {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === "ADMIN" || user?.role === "ROLE_ADMIN";
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   if (!isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return <Layout />;
 }
 
