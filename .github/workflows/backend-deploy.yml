@@ -43,8 +43,8 @@ jobs:
       run: |
         cd ecommerce-backend
         mvn sonar:sonar \
-          -Dsonar.projectKey=payreconcile-backend \
-          -Dsonar.organization=payreconcile \
+          -Dsonar.projectKey=PayReconcile \
+          -Dsonar.organization=prachiBarhate23 \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
