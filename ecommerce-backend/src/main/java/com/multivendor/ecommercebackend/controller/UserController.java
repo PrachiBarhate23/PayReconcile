@@ -27,12 +27,25 @@ public class UserController {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username).orElseThrow();
 
+        Double balance = user.getAccountBalance() != null ? user.getAccountBalance() : 0.0;
+        // Derive totals from available balance data
+        // totalEarnings = all money credited; totalPayouts = money paid out; pendingBalance = in-transit
+        Double totalEarnings = balance >= 0 ? balance : 0.0;
+        Double totalPayouts = 0.0;
+        Double pendingBalance = 0.0;
+
         return new UserProfileResponse(
                 user.getId(),
                 user.getUsername(),
+                user.getEmail(),
                 user.getRole(),
-                user.getAccountBalance(),
-                user.getPreferredCurrency()
+                balance,
+                totalEarnings,
+                totalPayouts,
+                pendingBalance,
+                user.getPreferredCurrency() != null ? user.getPreferredCurrency() : "USD",
+                user.getCreatedAt(),
+                user.getUpdatedAt()
         );
     }
 

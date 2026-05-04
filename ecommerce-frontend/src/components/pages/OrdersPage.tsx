@@ -1,11 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { Eye, CreditCard, RotateCw, ShoppingCart, Plus, User, Package, DollarSign, X, CheckCircle2 } from "lucide-react";
+import { Eye, CreditCard, RotateCw, ShoppingCart, Plus, User, Package, DollarSign, X, CheckCircle2, Clock } from "lucide-react";
 import { StatusBadge } from "../StatusBadge";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { EmptyState } from "../EmptyState";
 import api from "../../api/api";
 import StripePaymentForm from "../StripePaymentForm";
 
+// ─── Timestamp Helpers ────────────────────────────────────────────────────────
+function formatDateTime(dateStr: string | null | undefined): string {
+  if (!dateStr) return "—";
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "—";
+    return date.toLocaleString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric",
+      hour: "2-digit", minute: "2-digit", hour12: true,
+    });
+  } catch { return "—"; }
+}
+
+function timeAgo(dateStr: string | null | undefined): string {
+  if (!dateStr) return "";
+  try {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  } catch { return ""; }
+}
+// ──────────────────────────────────────────────────────────────────────────────
 
 interface Order {
   id: string;
@@ -169,7 +195,12 @@ export function OrdersPage() {
                     <StatusBadge status={order.status} type="order" />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(order.createdAt).toLocaleString()}
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-700">{formatDateTime(order.createdAt)}</span>
+                      <span className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                        <Clock className="w-3 h-3" />{timeAgo(order.createdAt)}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
