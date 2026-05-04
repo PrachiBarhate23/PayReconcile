@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { RefreshCw, AlertTriangle, Eye } from "lucide-react";
 import { StatusBadge } from "../StatusBadge";
 import api from "../../api/api";
+import { formatDate } from "../../utils/dateUtils";
 
 interface Chargeback {
   id: string;
@@ -168,7 +169,7 @@ export function ChargebackManagementPage() {
                   <StatusBadge status={cb.status} />
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {new Date(cb.createdAt).toLocaleDateString()}
+                  {formatDate(cb.createdAt)}
                 </td>
                 <td className="px-6 py-4 text-right space-x-2">
                   <button

@@ -3,6 +3,7 @@ import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { StatusBadge } from '../StatusBadge';
 import { ConfirmationModal } from '../ConfirmationModal';
 import { getReconciliationMismatches, runReconciliation } from '../../api/reconciliation';
+import { formatDateTime } from '../../utils/dateUtils';
 
 interface Mismatch {
   id: string;
@@ -193,7 +194,7 @@ export function ReconciliationPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(mismatch.detectedAt).toLocaleString()}
+                  {formatDateTime(mismatch.detectedAt)}
                   </td>
                   <td className="px-6 py-4">
                     <StatusBadge status={mismatch.status} type="reconciliation" />

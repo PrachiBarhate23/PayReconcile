@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBadge } from '../StatusBadge';
 import { getAllLedgerEntries } from '../../api/ledger';
+import { formatDateTime } from '../../utils/dateUtils';
 
 interface LedgerEntry {
   id: string;
@@ -135,7 +136,7 @@ export function LedgerPage() {
                     {entry.referenceId}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(entry.timestamp).toLocaleString()}
+                    {formatDateTime(entry.timestamp)}
                   </td>
                 </tr>
               ))}

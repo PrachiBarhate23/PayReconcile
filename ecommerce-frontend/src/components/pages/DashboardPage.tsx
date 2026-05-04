@@ -9,6 +9,7 @@ import {
 import { getOrders } from '../../api/orders';
 import { getPayments } from '../../api/payments';
 import { getWebhookLogs } from '../../api/webhooks';
+import { formatDateTime } from '../../utils/dateUtils';
 
 /* -------------------- Types -------------------- */
 interface Payment {
@@ -64,7 +65,7 @@ export function DashboardPage() {
         const logs: WebhookLog[] = await getWebhookLogs();
         setRecentActivity(
           logs.slice(0, 5).map(log => ({
-            time: new Date(log.createdAt).toLocaleString(),
+            time: formatDateTime(log.createdAt),
             event: `Webhook received: ${log.eventType}`,
             type: log.eventType.includes('failed')
               ? 'error'

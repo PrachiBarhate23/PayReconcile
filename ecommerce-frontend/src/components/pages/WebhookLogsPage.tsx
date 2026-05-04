@@ -3,6 +3,7 @@ import { Webhook } from 'lucide-react';
 import { StatusBadge } from '../StatusBadge';
 import { EmptyState } from '../EmptyState';
 import { getWebhookLogs } from '../../api/webhooks';
+import { formatDateTime } from '../../utils/dateUtils';
 
 interface WebhookEvent {
   id: string;
@@ -149,7 +150,7 @@ export function WebhookLogsPage() {
                     </td>
 
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {new Date(event.receivedAt).toLocaleString()}
+                      {formatDateTime(event.receivedAt)}
                     </td>
 
                     <td className="px-6 py-4">
