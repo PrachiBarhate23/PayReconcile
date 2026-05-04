@@ -24,7 +24,7 @@
         state: directory
         owner: ubuntu
         group: ubuntu
-        mode: '0755'
+        mode: '0750'  # Restricted: no access for others (sonar: S2612)
 
     - name: Create frontend directory
       file:
@@ -32,7 +32,7 @@
         state: directory
         owner: ubuntu
         group: ubuntu
-        mode: '0755'
+        mode: '0750'  # Restricted: no access for others (sonar: S2612)
 
     - name: Allow HTTP traffic (Port 80)
       ufw:
