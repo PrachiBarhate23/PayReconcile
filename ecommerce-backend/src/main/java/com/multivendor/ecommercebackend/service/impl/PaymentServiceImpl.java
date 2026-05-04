@@ -18,6 +18,7 @@ import com.stripe.model.Refund;
 import com.stripe.net.Webhook;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
@@ -117,15 +119,15 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             event = Webhook.constructEvent(payload, signature, stripeWebhookSecret);
         } catch (SignatureVerificationException e) {
-            System.err.println("❌ Webhook signature verification failed!");
+            log.error("Webhook signature verification failed", e);
             throw new RuntimeException("Invalid Stripe signature", e);
         }
 
-        System.out.println("🔥 Stripe Event Received: " + event.getType());
+        log.info("Stripe Event Received: {}", event.getType());
 
-        // ✅ Idempotency check
+        // Idempotency check
         if (webhookEventRepository.existsById(event.getId())) {
-            System.out.println("⚠ Event already processed: " + event.getId());
+            log.warn("Event already processed: {}", event.getId());
             return;
         }
 
@@ -168,7 +170,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error processing Stripe webhook event", e);
         }
     }
 
@@ -183,11 +185,11 @@ public class PaymentServiceImpl implements PaymentService {
             Payment payment = paymentRepository
                     .findByGatewayPaymentId(gatewayPaymentId)
                     .orElse(null);
-            System.out.println("Searching payment for: " + gatewayPaymentId);
-            System.out.println("Found payment: " + payment);
+            log.debug("Searching payment for: {}", gatewayPaymentId);
+            log.debug("Found payment: {}", payment);
 
             if (payment == null) {
-                System.out.println("Payment not found for: " + gatewayPaymentId);
+                log.warn("Payment not found for gateway ID: {}", gatewayPaymentId);
                 return;
             }
 
@@ -204,10 +206,10 @@ public class PaymentServiceImpl implements PaymentService {
                     payment.getUsername()
             );
 
-            System.out.println("✅ Payment marked SUCCESS");
+            log.info("Payment marked SUCCESS for gateway ID: {}", gatewayPaymentId);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error marking payment success for: {}", gatewayPaymentId, e);
         }
     }
 
@@ -238,7 +240,7 @@ public class PaymentServiceImpl implements PaymentService {
             orderService.markOrderFailed(orderId);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error marking payment failed for: {}", gatewayPaymentId, e);
         }
     }
 

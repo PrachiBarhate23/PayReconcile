@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -100,12 +99,12 @@ public class ChargebackService {
     }
 
     public Chargeback updateChargebackStatus(String chargebackId, String newStatus, String resolution) {
-        Optional<Chargeback> chargebackOpt = chargebackRepository.findByChargebackId(chargebackId);
-        if (chargebackOpt.isEmpty()) {
+        Chargeback chargeback = chargebackRepository.findByChargebackId(chargebackId)
+                .orElse(null);
+        if (chargeback == null) {
             return null;
         }
 
-        Chargeback chargeback = chargebackOpt.get();
         chargeback.setStatus(newStatus);
         chargeback.setResolution(resolution);
         if (!newStatus.equals("INITIATED")) {
@@ -118,12 +117,12 @@ public class ChargebackService {
     }
 
     public Chargeback addEvidenceToChargeback(String chargebackId, String evidence) {
-        Optional<Chargeback> chargebackOpt = chargebackRepository.findByChargebackId(chargebackId);
-        if (chargebackOpt.isEmpty()) {
+        Chargeback chargeback = chargebackRepository.findByChargebackId(chargebackId)
+                .orElse(null);
+        if (chargeback == null) {
             return null;
         }
 
-        Chargeback chargeback = chargebackOpt.get();
         chargeback.setEvidence(evidence);
         chargeback.setStatus("UNDER_REVIEW");
 
@@ -133,7 +132,7 @@ public class ChargebackService {
     }
 
     public Long getActiveChargebackCount() {
-        return chargebackRepository.findByStatus("INITIATED").stream().count();
+        return (long) chargebackRepository.findByStatus("INITIATED").size();
     }
 
     public Double getTotalChargebackAmount() {

@@ -14,12 +14,14 @@ import com.multivendor.ecommercebackend.service.ReconciliationService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReconciliationServiceImpl implements ReconciliationService {
@@ -111,15 +113,11 @@ public class ReconciliationServiceImpl implements ReconciliationService {
                 }
 
             } catch (StripeException e) {
-
-                // ⚠️ Never crash reconciliation job
+                // Never crash reconciliation job
                 saveLog(order, payment,
                         "Stripe fetch failed",
                         "Reconciliation skipped due to Stripe error");
-
-                System.err.println("Stripe error for PaymentIntent: "
-                        + payment.getGatewayPaymentId());
-                e.printStackTrace();
+                log.error("Stripe error for PaymentIntent: {}", payment.getGatewayPaymentId(), e);
             }
         }
     }

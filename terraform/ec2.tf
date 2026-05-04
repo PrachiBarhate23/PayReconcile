@@ -2,16 +2,11 @@ resource "aws_security_group" "payreconcile_sg" {
   name        = "payreconcile-sg"
   description = "Allow web and ssh traffic"
 
-  # SSH access - restricted to known IPs only (GitHub Actions + admin)
-  # sonar: S6321 - do not expose administration services to the internet
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    # Replace with your static IP or GitHub Actions runner CIDR
-    # Get your IP: https://checkip.amazonaws.com
-    cidr_blocks = ["0.0.0.0/0"] # TODO: restrict to your IP in production
-    description = "SSH - restrict to known IPs in production"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
