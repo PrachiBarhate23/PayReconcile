@@ -16,6 +16,56 @@ interface Order {
   createdAt: string;
 }
 
+const ModalOverlay = ({ onClose, children }: { onClose: () => void, children: React.ReactNode }) => (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 50,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "16px",
+    }}
+  >
+    {/* Backdrop */}
+    <button
+      type="button"
+      aria-label="Close modal"
+      onClick={onClose}
+      onKeyDown={(e) => e.key === 'Escape' && onClose()}
+      style={{
+        position: "absolute",
+        inset: 0,
+        backgroundColor: "rgba(17, 24, 39, 0.5)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        border: "none",
+        margin: 0,
+        padding: 0,
+        cursor: "pointer",
+      }}
+    />
+
+    {/* Modal Card */}
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: "448px",
+        backgroundColor: "#ffffff",
+        borderRadius: "24px",
+        padding: "32px",
+        boxShadow: "0 25px 60px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.10)",
+        border: "1px solid #f0f0f0",
+        overflow: "hidden",
+      }}
+    >
+      {children}
+    </div>
+  </div>
+);
+
 export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -210,52 +260,8 @@ export function OrdersPage() {
       )}
 
       {/* Create Order Modal */}
-      {/* Create Order Modal */}
       {showCreateModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "16px",
-          }}
-        >
-          {/* Backdrop */}
-          <button
-            type="button"
-            aria-label="Close modal"
-            onClick={() => setShowCreateModal(false)}
-            onKeyDown={(e) => e.key === 'Escape' && setShowCreateModal(false)}
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundColor: "rgba(17, 24, 39, 0.5)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              border: "none",
-              margin: 0,
-              padding: 0,
-              cursor: "pointer",
-            }}
-          />
-
-          {/* Modal Card */}
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              maxWidth: "448px",
-              backgroundColor: "#ffffff",
-              borderRadius: "24px",
-              padding: "32px",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.10)",
-              border: "1px solid #f0f0f0",
-              overflow: "hidden",
-            }}
-          >
+        <ModalOverlay onClose={() => setShowCreateModal(false)}>
             {/* Top gradient bar */}
             <div
               style={{
@@ -540,54 +546,10 @@ export function OrdersPage() {
                 Confirm Order
               </button>
             </div>
-          </div>
-        </div>
+        </ModalOverlay>
       )}
       {showPayModal && selectedOrder && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "16px",
-          }}
-        >
-          {/* Backdrop */}
-          <button
-            type="button"
-            aria-label="Close modal"
-            onClick={() => setShowPayModal(false)}
-            onKeyDown={(e) => e.key === 'Escape' && setShowPayModal(false)}
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundColor: "rgba(17, 24, 39, 0.5)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              border: "none",
-              margin: 0,
-              padding: 0,
-              cursor: "pointer",
-            }}
-          />
-
-          {/* Modal Card */}
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              maxWidth: "448px",
-              backgroundColor: "#ffffff",
-              borderRadius: "24px",
-              padding: "32px",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.10)",
-              border: "1px solid #f0f0f0",
-              overflow: "hidden",
-            }}
-          >
+        <ModalOverlay onClose={() => setShowPayModal(false)}>
             {/* Top gradient bar — emerald/teal/cyan */}
             <div
               style={{
@@ -707,8 +669,7 @@ export function OrdersPage() {
               </svg>
               256-bit SSL encrypted · Powered by Stripe
             </div>
-          </div>
-        </div>
+        </ModalOverlay>
       )}
 
 
