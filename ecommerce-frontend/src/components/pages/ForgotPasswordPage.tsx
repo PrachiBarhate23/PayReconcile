@@ -64,15 +64,17 @@ export function ForgotPasswordPage() {
 
           <div className="auth-footer">
             Didn't receive the email?{" "}
-            <a
+            <button
+              type="button"
               onClick={() => {
                 setSuccess(false);
                 setError("");
               }}
               className="auth-link"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
             >
               Try again
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -82,13 +84,15 @@ export function ForgotPasswordPage() {
   return (
     <div className="auth-root">
       <div className="auth-card">
-        <div
+        <button
+          type="button"
           className="back-link"
           onClick={() => navigate("/login")}
+          style={{ background: 'none', border: 'none' }}
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Login
-        </div>
+        </button>
 
         <div className="auth-tag">Reset Your Password</div>
         <h2 className="auth-title">Forgot Password?</h2>
@@ -102,8 +106,9 @@ export function ForgotPasswordPage() {
 
         <form onSubmit={handleForgotPassword}>
           <div className="auth-field">
-            <label className="auth-lbl">Email Address</label>
+            <label htmlFor="forgot-email" className="auth-lbl">Email Address</label>
             <input
+              id="forgot-email"
               type="email"
               required
               placeholder="you@example.com"
@@ -124,12 +129,14 @@ export function ForgotPasswordPage() {
 
         <div className="auth-footer">
           Remember your password?{" "}
-          <a
+          <button
+            type="button"
             onClick={() => navigate("/login")}
             className="auth-link"
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
           >
             Sign in
-          </a>
+          </button>
         </div>
       </div>
     </div>

@@ -60,33 +60,33 @@ export function RegisterPage() {
         <form onSubmit={handleRegister}>
           <div className="grid-2">
             <div className="auth-field" style={{ animationDelay: '0.1s' }}>
-              <label className="auth-lbl">First Name</label>
-              <input required className="auth-inp" placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
+              <label htmlFor="reg-first-name" className="auth-lbl">First Name</label>
+              <input id="reg-first-name" required className="auth-inp" placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
             </div>
             <div className="auth-field" style={{ animationDelay: '0.15s' }}>
-              <label className="auth-lbl">Last Name</label>
-              <input required className="auth-inp" placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
+              <label htmlFor="reg-last-name" className="auth-lbl">Last Name</label>
+              <input id="reg-last-name" required className="auth-inp" placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
             </div>
           </div>
           
           <div className="auth-field" style={{ animationDelay: '0.2s' }}>
-            <label className="auth-lbl">Email Address</label>
-            <input type="email" required className="auth-inp" placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+            <label htmlFor="reg-email" className="auth-lbl">Email Address</label>
+            <input id="reg-email" type="email" required className="auth-inp" placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
           </div>
 
           <div className="auth-field" style={{ animationDelay: '0.25s' }}>
-            <label className="auth-lbl">Username</label>
-            <input required className="auth-inp" placeholder="johndoe123" value={username} onChange={e => setUsername(e.target.value)} />
+            <label htmlFor="reg-username" className="auth-lbl">Username</label>
+            <input id="reg-username" required className="auth-inp" placeholder="johndoe123" value={username} onChange={e => setUsername(e.target.value)} />
           </div>
 
           <div className="grid-2">
             <div className="auth-field" style={{ animationDelay: '0.3s' }}>
-              <label className="auth-lbl">Password</label>
-              <input type="password" required className="auth-inp" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+              <label htmlFor="reg-password" className="auth-lbl">Password</label>
+              <input id="reg-password" type="password" required className="auth-inp" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
             </div>
             <div className="auth-field" style={{ animationDelay: '0.35s' }}>
-              <label className="auth-lbl">Confirm Password</label>
-              <input type="password" required className="auth-inp" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+              <label htmlFor="reg-confirm-password" className="auth-lbl">Confirm Password</label>
+              <input id="reg-confirm-password" type="password" required className="auth-inp" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
             </div>
           </div>
 

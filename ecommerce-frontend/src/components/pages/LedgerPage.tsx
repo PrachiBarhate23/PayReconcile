@@ -122,12 +122,13 @@ export function LedgerPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`text-sm font-medium ${entry.type === 'CREDIT'
-                        ? 'text-green-600'
-                        : entry.type === 'DEBIT'
+                      className={`text-sm font-medium ${
+                        entry.type === 'CREDIT'
+                          ? 'text-green-600'
+                          : entry.type === 'DEBIT'
                           ? 'text-red-600'
                           : 'text-purple-600'
-                        }`}
+                      }`}
                     >
                       {entry.type === 'CREDIT' ? '+' : '-'}${entry.amount.toFixed(2)}
                     </span>

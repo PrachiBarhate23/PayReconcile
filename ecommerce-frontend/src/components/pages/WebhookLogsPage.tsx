@@ -62,10 +62,6 @@ export function WebhookLogsPage() {
     e => e.processingStatus === 'IGNORED'
   ).length;
 
-  const errorCount = webhookEvents.filter(
-    e => e.processingStatus === 'ERROR'
-  ).length;
-
   return (
     <div className="p-6 space-y-6">
 

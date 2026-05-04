@@ -23,8 +23,6 @@ export function ChargebackManagementPage() {
   const [loading, setLoading] = useState(true);
   const [selectedChargeback, setSelectedChargeback] = useState<Chargeback | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showResolutionModal, setShowResolutionModal] = useState(false);
-  const [resolution, setResolution] = useState("");
   const [activeCount, setActiveCount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
 
@@ -198,22 +196,22 @@ export function ChargebackManagementPage() {
 
             <div className="p-4 space-y-4">
               <div>
-                <label className="text-xs font-semibold text-gray-600 uppercase">Chargeback ID</label>
+                <span className="text-xs font-semibold text-gray-600 uppercase">Chargeback ID</span>
                 <p className="text-sm text-gray-900 font-mono mt-1">{selectedChargeback.chargebackId}</p>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-600 uppercase">Amount</label>
+                <span className="text-xs font-semibold text-gray-600 uppercase">Amount</span>
                 <p className="text-sm text-gray-900 font-medium mt-1">${selectedChargeback.chargebackAmount.toFixed(2)}</p>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-600 uppercase">Reason</label>
+                <span className="text-xs font-semibold text-gray-600 uppercase">Reason</span>
                 <p className="text-sm text-gray-900 mt-1">{selectedChargeback.reason}</p>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-600 uppercase">Status</label>
+                <span className="text-xs font-semibold text-gray-600 uppercase">Status</span>
                 <p className="text-sm text-gray-900 mt-1">
                   <StatusBadge status={selectedChargeback.status} />
                 </p>

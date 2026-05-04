@@ -64,15 +64,18 @@ export function DashboardPage() {
         /* Recent activity (webhooks) */
         const logs: WebhookLog[] = await getWebhookLogs();
         setRecentActivity(
-          logs.slice(0, 5).map(log => ({
-            time: formatDateTime(log.createdAt),
-            event: `Webhook received: ${log.eventType}`,
-            type: log.eventType.includes('failed')
+          logs.slice(0, 5).map(log => {
+            const activityType = log.eventType.includes('failed')
               ? 'error'
               : log.eventType.includes('refund')
-                ? 'refund'
-                : 'success'
-          }))
+              ? 'refund'
+              : 'success';
+            return {
+              time: formatDateTime(log.createdAt),
+              event: `Webhook received: ${log.eventType}`,
+              type: activityType,
+            };
+          })
         );
 
       } catch (err) {
@@ -155,8 +158,8 @@ export function DashboardPage() {
                 outerRadius={80}
                 dataKey="value"
               >
-                {paymentDistribution.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
+                {paymentDistribution.map((entry) => (
+                  <Cell key={`cell-${entry.color}`} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip />
@@ -189,9 +192,9 @@ export function DashboardPage() {
           Recent Activity
         </h3>
         <div className="space-y-3">
-          {recentActivity.map((activity, index) => (
+          {recentActivity.map((activity) => (
             <div
-              key={index}
+              key={`${activity.time}-${activity.event}`}
               className="flex items-start gap-3 py-3 border-b last:border-0"
             >
               <div className="w-2 h-2 rounded-full mt-2 bg-blue-500" />

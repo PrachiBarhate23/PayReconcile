@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { login } from "../../api/auth";
 import { useAuth } from "../../context/AuthContext";
 
@@ -13,7 +13,6 @@ const injectStyles = () => {
 };
 
 export function LoginPage() {
-  const navigate = useNavigate();
   const { loginUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -55,12 +54,12 @@ export function LoginPage() {
 
         <form onSubmit={handleLogin}>
           <div className="auth-field" style={{ animationDelay: '0.2s' }}>
-            <label className="auth-lbl">Email or Username</label>
-            <input required className="auth-inp" placeholder="Enter your username" value={username} onChange={e => setUsername(e.target.value)} />
+            <label htmlFor="login-username" className="auth-lbl">Email or Username</label>
+            <input id="login-username" required className="auth-inp" placeholder="Enter your username" value={username} onChange={e => setUsername(e.target.value)} />
           </div>
           <div className="auth-field" style={{ animationDelay: '0.3s' }}>
-            <label className="auth-lbl">Password</label>
-            <input type="password" placeholder="••••••••" required className="auth-inp" value={password} onChange={e => setPassword(e.target.value)} />
+            <label htmlFor="login-password" className="auth-lbl">Password</label>
+            <input id="login-password" type="password" placeholder="••••••••" required className="auth-inp" value={password} onChange={e => setPassword(e.target.value)} />
           </div>
 
           <div className="auth-extras" style={{ animationDelay: '0.35s' }}>

@@ -207,9 +207,9 @@ export function LandingPage() {
           © {new Date().getFullYear()} PayReconcile Systems Inc. All rights reserved.
         </div>
         <div className="lp-nav-links" style={{ gap: '1.5rem' }}>
-          <a href="#" className="lp-nav-link" style={{ fontSize: '0.8rem' }}>Terms</a>
-          <a href="#" className="lp-nav-link" style={{ fontSize: '0.8rem' }}>Privacy</a>
-          <a href="#" className="lp-nav-link" style={{ fontSize: '0.8rem' }}>Security</a>
+          <a href="#features" className="lp-nav-link" style={{ fontSize: '0.8rem' }}>Terms</a>
+          <a href="#how-it-works" className="lp-nav-link" style={{ fontSize: '0.8rem' }}>Privacy</a>
+          <a href="#pricing" className="lp-nav-link" style={{ fontSize: '0.8rem' }}>Security</a>
         </div>
       </footer>
     </div>

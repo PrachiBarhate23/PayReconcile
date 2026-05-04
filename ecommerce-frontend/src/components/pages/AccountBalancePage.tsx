@@ -152,15 +152,19 @@ export function AccountBalancePage() {
               <tr key={transaction.id} className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-mono text-gray-900">{transaction.id.slice(0, 12)}...</td>
                 <td className="px-6 py-4 text-sm">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    transaction.type === 'CREDIT'
-                      ? 'bg-green-100 text-green-700'
-                      : transaction.type === 'DEBIT'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-purple-100 text-purple-700'
-                  }`}>
-                    {transaction.type}
-                  </span>
+                  {(() => {
+                    const typeClass =
+                      transaction.type === 'CREDIT'
+                        ? 'bg-green-100 text-green-700'
+                        : transaction.type === 'DEBIT'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-purple-100 text-purple-700';
+                    return (
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${typeClass}`}>
+                        {transaction.type}
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td className={`px-6 py-4 text-sm font-medium ${
                   transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'

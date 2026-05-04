@@ -20,8 +20,6 @@ export function UserManagementPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [newUser, setNewUser] = useState({
@@ -150,8 +148,7 @@ export function UserManagementPage() {
                 <td className="px-6 py-4 text-right space-x-2">
                   <button
                     onClick={() => {
-                      setSelectedUser(user);
-                      setShowEditModal(true);
+                      console.log('Edit user:', user.id);
                     }}
                     className="p-2 hover:bg-blue-100 text-blue-600 rounded transition-colors"
                   >
@@ -178,8 +175,9 @@ export function UserManagementPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <label htmlFor="new-user-username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                 <input
+                  id="new-user-username"
                   type="text"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={newUser.username}
@@ -188,8 +186,9 @@ export function UserManagementPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label htmlFor="new-user-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
+                  id="new-user-email"
                   type="email"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={newUser.email}
@@ -198,8 +197,9 @@ export function UserManagementPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label htmlFor="new-user-password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input
+                  id="new-user-password"
                   type="password"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={newUser.password}
@@ -208,8 +208,9 @@ export function UserManagementPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <label htmlFor="new-user-role" className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                 <select
+                  id="new-user-role"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}

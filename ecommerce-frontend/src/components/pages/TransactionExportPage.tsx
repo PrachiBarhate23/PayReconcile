@@ -66,7 +66,7 @@ export function TransactionExportPage() {
         <div style={{ backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #e2e8f0", padding: "32px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column", gap: "24px" }}>
           {/* Format Selection */}
           <div>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#0f172a", marginBottom: "12px" }}>Export Format</label>
+            <span style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#0f172a", marginBottom: "12px" }}>Export Format</span>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
               {[
                 { id: "csv", label: "CSV", icon: "📄" },
@@ -101,8 +101,9 @@ export function TransactionExportPage() {
           {/* Date Range */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
             <div>
-              <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#0f172a", marginBottom: "8px" }}>Start Date</label>
+              <label htmlFor="export-start-date" style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#0f172a", marginBottom: "8px" }}>Start Date</label>
               <input
+                id="export-start-date"
                 type="date"
                 style={{ width: "100%", padding: "10px 16px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
                 value={startDate}
@@ -110,8 +111,9 @@ export function TransactionExportPage() {
               />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#0f172a", marginBottom: "8px" }}>End Date</label>
+              <label htmlFor="export-end-date" style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#0f172a", marginBottom: "8px" }}>End Date</label>
               <input
+                id="export-end-date"
                 type="date"
                 style={{ width: "100%", padding: "10px 16px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
                 value={endDate}

@@ -20,8 +20,6 @@ interface Settlement {
 export function SettlementReportsPage() {
   const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [monthlyTotal, setMonthlyTotal] = useState(0);
-  const [selectedMonth, setSelectedMonth] = useState("all");
 
   useEffect(() => {
     fetchSettlements();
@@ -32,8 +30,6 @@ export function SettlementReportsPage() {
       const res = await api.get("/settlements");
       setSettlements(res.data);
 
-      const res2 = await api.get("/settlements/monthly/total");
-      setMonthlyTotal(res2.data);
     } catch (err) {
       console.error("Failed to fetch settlements", err);
     } finally {

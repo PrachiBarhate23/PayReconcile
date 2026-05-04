@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
 
 interface JwtPayload {
@@ -71,16 +71,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
   };
 
+  const contextValue = useMemo(
+    () => ({
+      isAuthenticated: !!token,
+      token,
+      user,
+      loginUser,
+      logoutUser,
+    }),
+    [token, user, loginUser, logoutUser]
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated: !!token,
-        token,
-        user,
-        loginUser,
-        logoutUser,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
