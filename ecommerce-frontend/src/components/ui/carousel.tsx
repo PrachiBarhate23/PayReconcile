@@ -104,30 +104,33 @@ function Carousel({
     };
   }, [api, onSelect]);
 
+  const contextValue = React.useMemo(
+    () => ({
+      carouselRef,
+      api: api,
+      opts,
+      orientation:
+        orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
+      scrollPrev,
+      scrollNext,
+      canScrollPrev,
+      canScrollNext,
+    }),
+    [carouselRef, api, opts, orientation, scrollPrev, scrollNext, canScrollPrev, canScrollNext],
+  );
+
   return (
-    <CarouselContext.Provider
-      value={{
-        carouselRef,
-        api: api,
-        opts,
-        orientation:
-          orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
-        scrollPrev,
-        scrollNext,
-        canScrollPrev,
-        canScrollNext,
-      }}
-    >
-      <div
+    <CarouselContext.Provider value={contextValue}>
+      <section
         onKeyDownCapture={handleKeyDown}
         className={cn("relative", className)}
-        role="region"
+        aria-label="carousel"
         aria-roledescription="carousel"
         data-slot="carousel"
         {...props}
       >
         {children}
-      </div>
+      </section>
     </CarouselContext.Provider>
   );
 }
@@ -158,7 +161,6 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
 
   return (
     <div
-      role="group"
       aria-roledescription="slide"
       data-slot="carousel-item"
       className={cn(

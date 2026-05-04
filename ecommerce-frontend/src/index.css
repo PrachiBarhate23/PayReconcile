@@ -1,4 +1,4 @@
-﻿/*! tailwindcss v4.1.3 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.3 | MIT License | https://tailwindcss.com */
 @layer properties {
   @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
     *, :before, :after, ::backdrop {
@@ -180,7 +180,6 @@
   a {
     color: inherit;
     -webkit-text-decoration: inherit;
-    -webkit-text-decoration: inherit;
     text-decoration: inherit;
   }
 
@@ -272,17 +271,6 @@
     color-scheme: light;
     background-color: #0000;
     border-radius: 0;
-  }
-
-  :where(select:is([multiple], [size])) optgroup {
-    font-weight: bolder;
-  }
-
-  :where(select:is([multiple], [size])) optgroup option {
-    padding-inline-start: 20px;
-  }
-
-  ::file-selector-button {
     margin-inline-end: 4px;
   }
 
@@ -312,13 +300,6 @@
 
   ::-webkit-datetime-edit {
     display: inline-flex;
-  }
-
-  ::-webkit-datetime-edit-fields-wrapper {
-    padding: 0;
-  }
-
-  ::-webkit-datetime-edit {
     padding-block: 0;
   }
 
@@ -376,22 +357,6 @@
 
   [hidden]:where(:not([hidden="until-found"])) {
     display: none !important;
-  }
-
-  * {
-    border-color: var(--border);
-    outline-color: var(--ring);
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    * {
-      outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
-    }
-  }
-
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
   }
 
   * {

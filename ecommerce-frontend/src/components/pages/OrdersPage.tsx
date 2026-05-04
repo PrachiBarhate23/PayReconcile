@@ -225,7 +225,11 @@ export function OrdersPage() {
         >
           {/* Backdrop */}
           <div
+            role="button"
+            tabIndex={0}
+            aria-label="Close modal"
             onClick={() => setShowCreateModal(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setShowCreateModal(false)}
             style={{
               position: "absolute",
               inset: 0,
@@ -313,7 +317,7 @@ export function OrdersPage() {
 
               {/* Customer Username */}
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
+                <label htmlFor="order-username" style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
                   Customer Username
                 </label>
                 <div style={{ position: "relative" }}>
@@ -321,6 +325,7 @@ export function OrdersPage() {
                     <User size={16} />
                   </div>
                   <input
+                    id="order-username"
                     type="text"
                     value={newOrder.username}
                     onChange={(e) => setNewOrder({ ...newOrder, username: e.target.value })}
@@ -357,7 +362,7 @@ export function OrdersPage() {
 
               {/* Quantity */}
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
+                <label htmlFor="order-quantity" style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
                   Quantity
                 </label>
                 <div style={{ position: "relative" }}>
@@ -365,6 +370,7 @@ export function OrdersPage() {
                     <Package size={16} />
                   </div>
                   <input
+                    id="order-quantity"
                     type="number"
                     min="1"
                     value={newOrder.quantity}
@@ -402,7 +408,7 @@ export function OrdersPage() {
 
               {/* Amount */}
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
+                <label htmlFor="order-amount" style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
                   Amount
                 </label>
                 <div style={{ position: "relative" }}>
@@ -410,6 +416,7 @@ export function OrdersPage() {
                     <DollarSign size={16} />
                   </div>
                   <input
+                    id="order-amount"
                     type="number"
                     min="0"
                     step="0.01"
@@ -547,7 +554,11 @@ export function OrdersPage() {
         >
           {/* Backdrop */}
           <div
+            role="button"
+            tabIndex={0}
+            aria-label="Close modal"
             onClick={() => setShowPayModal(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setShowPayModal(false)}
             style={{
               position: "absolute",
               inset: 0,
