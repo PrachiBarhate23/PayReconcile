@@ -14,6 +14,14 @@
         group: ubuntu
         mode: '0750'
 
+    # ── Stop old native service ────────────────────────────────────────────
+    - name: Ensure old native backend service is stopped and disabled
+      systemd:
+        name: payreconcile
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
     # ── ECR Login ─────────────────────────────────────────────────────────
     - name: Login to Amazon ECR
       shell: |
