@@ -14,22 +14,28 @@
         group: ubuntu
         mode: '0750'
 
-    # ── Stop old native service (frees port 5000) ──────────────────────────
-    - name: Ensure old native backend service is stopped and disabled
+    # ── Stop old native Java service ───────────────────────────────────────
+    - name: Ensure old native backend service is stopped
       systemd:
         name: payreconcile
         state: stopped
         enabled: no
       ignore_errors: yes
 
-    # ── Kill any stray process holding port 5000 ───────────────────────────
-    - name: Force-kill any process on port 5000
-      shell: fuser -k 5000/tcp || true
+    # ── Kill any Java process holding port 5000 ────────────────────────────
+    - name: Kill any Java process (old native backend)
+      shell: pkill -f "java" || true
       ignore_errors: yes
 
-    # ── Stop existing Docker containers cleanly ────────────────────────────
-    - name: Stop and remove existing containers
-      shell: docker compose -f /opt/payreconcile/docker-compose.yml down --remove-orphans || true
+    # ── Force-remove the backend container specifically ────────────────────
+    - name: Force-remove backend container if it exists
+      shell: docker rm -f payreconcile-backend || true
+      ignore_errors: yes
+
+    # ── Kill any remaining process on port 5000 ────────────────────────────
+    - name: Kill any process still on port 5000
+      shell: |
+        pid=$(lsof -ti:5000 2>/dev/null); [ -n "$pid" ] && kill -9 $pid || true
       ignore_errors: yes
 
     # ── ECR Login ─────────────────────────────────────────────────────────
