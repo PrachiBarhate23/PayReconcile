@@ -122,7 +122,6 @@ export function OrdersPage() {
     }
   };
 
-  /* ----------------------- Initiate Payment ----------------------- */
   /* ----------------------- Initiate Payment (Handled via Modal) ----------------------- */
 
 
