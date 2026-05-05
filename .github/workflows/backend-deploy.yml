@@ -7,6 +7,10 @@ on:
       - 'ecommerce-backend/**'
   workflow_dispatch:
 
+env:
+  ECR_REPOSITORY: payreconcile-backend
+  AWS_REGION: us-east-1
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -14,6 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # ── Step 1: Java setup (needed for SonarCloud) ─────────────────────────
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -21,21 +26,13 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Create app parent directory
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          sudo mkdir -p /opt/payreconcile/backend
-          sudo chown -R ubuntu:ubuntu /opt/payreconcile
-
+    # ── Step 2: Maven build (for SonarCloud analysis) ──────────────────────
     - name: Build with Maven
       run: |
         cd ecommerce-backend
         mvn clean package -DskipTests
 
+    # ── Step 3: SonarCloud (unchanged) ─────────────────────────────────────
     - name: SonarCloud Analysis (Backend)
       continue-on-error: true
       env:
@@ -48,35 +45,38 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
-    - name: Prepare Staging Area
-      env:
-        APP_PROPS: ${{ secrets.APPLICATION_PROPERTIES }}
-      run: |
-        mkdir -p staging
-        cp ecommerce-backend/target/app.jar staging/
-        echo "$APP_PROPS" > staging/application.properties
-
-    - name: Copy Files to EC2
-      uses: appleboy/scp-action@v0.1.7
+    # ── Step 4: Configure AWS credentials ──────────────────────────────────
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        source: "staging/*"
-        target: "/opt/payreconcile/backend"
-        strip_components: 1
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
-    # - name: Restart Backend Service (Legacy)
-    #   uses: appleboy/ssh-action@v1.0.3
-    #   with:
-    #     host: ${{ secrets.EC2_HOST }}
-    #     username: ${{ secrets.EC2_USER }}
-    #     key: ${{ secrets.EC2_SSH_KEY }}
-    #     script: |
-    #       sudo systemctl restart payreconcile
-    #       sudo systemctl status payreconcile
+    # ── Step 5: Login to Amazon ECR ────────────────────────────────────────
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Setup SSH Key for Ansible
+    # ── Step 6: Build Docker image & push to ECR ───────────────────────────
+    - name: Build, Tag & Push Backend Docker Image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+          ./ecommerce-backend
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        echo "BACKEND_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_ENV
+
+    # ── Step 7: Deploy via Ansible ─────────────────────────────────────────
+    - name: Install Ansible
+      run: pip install ansible
+
+    - name: Setup SSH Key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/payreconcile-key.pem
@@ -88,4 +88,16 @@ jobs:
       run: |
         cd ansible
         ansible-playbook -i hosts.yml deploy_app.yml \
-          --extra-vars "ec2_ip=${{ secrets.EC2_HOST }} stripe_secret=${{ secrets.STRIPE_SECRET_KEY }} stripe_publishable=${{ secrets.STRIPE_PUBLISHABLE_KEY }}"
+          --extra-vars "\
+            ec2_ip=${{ secrets.EC2_HOST }} \
+            ecr_registry=${{ steps.login-ecr.outputs.registry }} \
+            backend_image=${{ env.BACKEND_IMAGE }} \
+            frontend_image=${{ steps.login-ecr.outputs.registry }}/payreconcile-frontend:latest \
+            stripe_secret=${{ secrets.STRIPE_SECRET_KEY }} \
+            stripe_publishable=${{ secrets.STRIPE_PUBLISHABLE_KEY }} \
+            stripe_webhook_secret=${{ secrets.STRIPE_WEBHOOK_SECRET }} \
+            mongodb_uri=${{ secrets.MONGODB_URI }} \
+            mail_username=${{ secrets.MAIL_USERNAME }} \
+            mail_password=${{ secrets.MAIL_PASSWORD }} \
+            aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"

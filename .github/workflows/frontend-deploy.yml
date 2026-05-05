@@ -7,6 +7,10 @@ on:
       - 'ecommerce-frontend/**'
   workflow_dispatch:
 
+env:
+  ECR_REPOSITORY: payreconcile-frontend
+  AWS_REGION: us-east-1
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -14,8 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # SonarCloud needs full git history for blame info
+        fetch-depth: 0  # SonarCloud needs full git history
 
+    # ── Step 1: Node setup ─────────────────────────────────────────────────
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -23,16 +28,13 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ecommerce-frontend/package-lock.json
 
-    - name: Install dependencies and Build
-      env:
-        STRIPE_PUB_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+    # ── Step 2: Install dependencies (needed for SonarCloud) ───────────────
+    - name: Install dependencies
       run: |
         cd ecommerce-frontend
-        echo "VITE_API_BASE_URL=/api" > .env
-        echo "VITE_STRIPE_PUBLISHABLE_KEY=$STRIPE_PUB_KEY" >> .env
         npm install
-        npm run build
 
+    # ── Step 3: SonarCloud (unchanged) ─────────────────────────────────────
     - name: SonarCloud Analysis (Frontend)
       uses: SonarSource/sonarcloud-github-action@master
       continue-on-error: true
@@ -42,12 +44,61 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    - name: Deploy to EC2
-      uses: appleboy/scp-action@v0.1.7
+    # ── Step 4: Configure AWS credentials ──────────────────────────────────
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        source: "ecommerce-frontend/dist/*"
-        target: "/var/www/payreconcile/"
-        strip_components: 2
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # ── Step 5: Login to Amazon ECR ────────────────────────────────────────
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    # ── Step 6: Build Docker image & push to ECR ───────────────────────────
+    - name: Build, Tag & Push Frontend Docker Image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build \
+          --build-arg VITE_API_BASE_URL=/api \
+          --build-arg VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }} \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+          ./ecommerce-frontend
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        echo "FRONTEND_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_ENV
+
+    # ── Step 7: Deploy via Ansible ─────────────────────────────────────────
+    - name: Install Ansible
+      run: pip install ansible
+
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/payreconcile-key.pem
+        chmod 600 ~/.ssh/payreconcile-key.pem
+
+    - name: Run Ansible Deploy Playbook
+      env:
+        ANSIBLE_HOST_KEY_CHECKING: 'False'
+      run: |
+        cd ansible
+        ansible-playbook -i hosts.yml deploy_app.yml \
+          --extra-vars "\
+            ec2_ip=${{ secrets.EC2_HOST }} \
+            ecr_registry=${{ steps.login-ecr.outputs.registry }} \
+            backend_image=${{ steps.login-ecr.outputs.registry }}/payreconcile-backend:latest \
+            frontend_image=${{ env.FRONTEND_IMAGE }} \
+            stripe_secret=${{ secrets.STRIPE_SECRET_KEY }} \
+            stripe_publishable=${{ secrets.STRIPE_PUBLISHABLE_KEY }} \
+            stripe_webhook_secret=${{ secrets.STRIPE_WEBHOOK_SECRET }} \
+            mongodb_uri=${{ secrets.MONGODB_URI }} \
+            mail_username=${{ secrets.MAIL_USERNAME }} \
+            mail_password=${{ secrets.MAIL_PASSWORD }} \
+            aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"

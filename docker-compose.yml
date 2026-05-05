@@ -1,0 +1,80 @@
+version: '3.8'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PayReconcile — Local Development Docker Compose
+# Usage:
+#   1. Copy .env.example to .env and fill in your values
+#   2. Run: docker compose up --build
+#   3. Frontend: http://localhost:3000
+#   4. Backend:  http://localhost:5000
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Backend: Spring Boot ──────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./ecommerce-backend
+      dockerfile: Dockerfile
+    container_name: payreconcile-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - SPRING_DATA_MONGODB_URI=${MONGODB_URI}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_TYPE=redis
+      - KAFKA_BROKERS=localhost:9092   # Kafka disabled locally — app handles fail-fast=false
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - FIREBASE_CONFIG_PATH=/app/credentials.json
+    volumes:
+      - ./credentials.json:/app/credentials.json:ro   # Mount Firebase credentials
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - payreconcile-net
+
+  # ── Frontend: React (Vite) served by Nginx ────────────────────────────────
+  frontend:
+    build:
+      context: ./ecommerce-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+    container_name: payreconcile-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - payreconcile-net
+
+  # ── Redis: Caching ────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: payreconcile-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - payreconcile-net
+
+networks:
+  payreconcile-net:
+    driver: bridge

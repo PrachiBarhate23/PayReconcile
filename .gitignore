@@ -6,6 +6,9 @@ Screenshot_4.png
 .DS_Store
 Thumbs.db
 
+# Local environment secrets — NEVER commit
+.env
+
 credentials.json
 
 # Terraform

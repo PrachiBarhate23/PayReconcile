@@ -1,0 +1,10 @@
+target/
+.idea/
+.git/
+*.md
+.gitignore
+.mvn/
+deploy.zip
+.ebextensions/
+.platform/
+cloudflared.txt

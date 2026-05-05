@@ -1,27 +1,46 @@
 ---
-- name: Deploy PayReconcile Application
+- name: Deploy PayReconcile Application (Docker)
   hosts: all
   become: yes
+
   tasks:
-    - name: Ensure backend service is stopped
-      systemd:
-        name: payreconcile
-        state: stopped
-      ignore_errors: yes
 
-    - name: Update backend service template with env vars
+    # ── Ensure app directory exists ────────────────────────────────────────
+    - name: Ensure app directory exists
+      file:
+        path: /opt/payreconcile
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0750'
+
+    # ── ECR Login ─────────────────────────────────────────────────────────
+    - name: Login to Amazon ECR
+      shell: |
+        aws ecr get-login-password --region us-east-1 | \
+        docker login --username AWS --password-stdin {{ ecr_registry }}
+      become_user: ubuntu
+
+    # ── Template the production docker-compose file ────────────────────────
+    - name: Write production docker-compose file
       template:
-        src: templates/payreconcile.service.j2
-        dest: /etc/systemd/system/payreconcile.service
-      notify: Reload Systemd
+        src: templates/docker-compose.prod.yml.j2
+        dest: /opt/payreconcile/docker-compose.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'    # Readable only by ubuntu — contains secrets
 
-    - name: Start backend service
-      systemd:
-        name: payreconcile
-        state: started
-        enabled: yes
+    # ── Pull latest images from ECR ────────────────────────────────────────
+    - name: Pull latest Docker images
+      shell: docker compose -f /opt/payreconcile/docker-compose.yml pull
+      become_user: ubuntu
 
-  handlers:
-    - name: Reload Systemd
-      systemd:
-        daemon_reload: yes
+    # ── Start / restart containers ─────────────────────────────────────────
+    - name: Start containers with updated images
+      shell: docker compose -f /opt/payreconcile/docker-compose.yml up -d --remove-orphans
+      become_user: ubuntu
+
+    # ── Clean up dangling images to free disk space ────────────────────────
+    - name: Prune unused Docker images
+      shell: docker image prune -f
+      become_user: ubuntu

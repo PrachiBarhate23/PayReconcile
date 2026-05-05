@@ -1,38 +1,80 @@
 ---
-- name: Setup PayReconcile Server
+- name: Setup PayReconcile Server (Docker Edition)
   hosts: all
   become: yes
   tasks:
+
     - name: Update apt cache
       apt:
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install Java 17
+    # ── Docker Installation ────────────────────────────────────────────────
+    - name: Install Docker dependencies
       apt:
-        name: openjdk-17-jdk
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
         state: present
 
+    - name: Add Docker GPG key
+      shell: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+        gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/docker-archive-keyring.gpg
+
+    - name: Add Docker repository
+      shell: |
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+        https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+        tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: Install Docker Engine & Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        update_cache: yes
+        state: present
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    # ── AWS CLI (needed for ECR login) ─────────────────────────────────────
+    - name: Install AWS CLI
+      apt:
+        name: awscli
+        state: present
+
+    # ── App directory ──────────────────────────────────────────────────────
+    - name: Create app directory
+      file:
+        path: /opt/payreconcile
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0750'
+
+    # ── Nginx (host-level reverse proxy) ──────────────────────────────────
     - name: Install Nginx
       apt:
         name: nginx
         state: present
-
-    - name: Create app directory
-      file:
-        path: /opt/payreconcile/backend
-        state: directory
-        owner: ubuntu
-        group: ubuntu
-        mode: '0750'
-
-    - name: Create frontend directory
-      file:
-        path: /var/www/payreconcile
-        state: directory
-        owner: ubuntu
-        group: ubuntu
-        mode: '0750'
 
     - name: Allow HTTP traffic (Port 80)
       ufw:
@@ -40,46 +82,42 @@
         port: '80'
         proto: tcp
 
-    - name: Allow App traffic (Port 5000)
-      ufw:
-        rule: allow
-        port: '5000'
-        proto: tcp
-
-    - name: Configure Nginx as Reverse Proxy
+    - name: Configure Nginx as reverse proxy for Docker containers
       copy:
         dest: /etc/nginx/sites-available/default
         content: |
           server {
               listen 80;
-              # Forced update to trigger Nginx restart
-              
-              root /var/www/payreconcile;
-              index index.html;
 
+              # Frontend container (React SPA on port 3000)
               location / {
-                  try_files $uri $uri/ /index.html;
+                  proxy_pass          http://localhost:3000;
+                  proxy_http_version  1.1;
+                  proxy_set_header    Host              $host;
+                  proxy_set_header    X-Real-IP         $remote_addr;
+                  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+                  proxy_set_header    X-Forwarded-Proto $scheme;
               }
 
+              # Backend container (Spring Boot on port 5000)
               location /api/ {
-                  proxy_pass http://localhost:5000;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_pass          http://localhost:5000;
+                  proxy_http_version  1.1;
+                  proxy_set_header    Host              $host;
+                  proxy_set_header    X-Real-IP         $remote_addr;
+                  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+                  proxy_set_header    X-Forwarded-Proto $scheme;
+                  proxy_set_header    Authorization     $http_authorization;
+                  proxy_pass_header   Authorization;
+                  proxy_connect_timeout 60s;
+                  proxy_send_timeout    60s;
+                  proxy_read_timeout    60s;
+                  client_max_body_size  20M;
               }
           }
       notify: Restart Nginx
 
-    - name: Setup Backend Systemd Service
-      template:
-        src: templates/payreconcile.service.j2
-        dest: /etc/systemd/system/payreconcile.service
-      notify: Reload Systemd
-
   handlers:
-    - name: Reload Systemd
-      systemd:
-        daemon_reload: yes
-
     - name: Restart Nginx
       systemd:
         name: nginx
