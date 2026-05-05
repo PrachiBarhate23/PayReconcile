@@ -67,3 +67,17 @@
     # ── Clean up dangling images to free disk space ────────────────────────
     - name: Prune unused Docker images
       shell: docker image prune -f
+
+    # ── Wait and fetch logs for debugging ──────────────────────────────────
+    - name: Wait 15 seconds for Spring Boot to start
+      pause:
+        seconds: 15
+
+    - name: Fetch backend logs to ensure it started successfully
+      shell: docker logs payreconcile-backend | tail -n 50
+      register: backend_logs
+      ignore_errors: yes
+
+    - name: Print backend logs for debugging 502 errors
+      debug:
+        var: backend_logs.stdout_lines
