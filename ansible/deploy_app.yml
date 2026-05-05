@@ -14,12 +14,22 @@
         group: ubuntu
         mode: '0750'
 
-    # ── Stop old native service ────────────────────────────────────────────
+    # ── Stop old native service (frees port 5000) ──────────────────────────
     - name: Ensure old native backend service is stopped and disabled
       systemd:
         name: payreconcile
         state: stopped
         enabled: no
+      ignore_errors: yes
+
+    # ── Kill any stray process holding port 5000 ───────────────────────────
+    - name: Force-kill any process on port 5000
+      shell: fuser -k 5000/tcp || true
+      ignore_errors: yes
+
+    # ── Stop existing Docker containers cleanly ────────────────────────────
+    - name: Stop and remove existing containers
+      shell: docker compose -f /opt/payreconcile/docker-compose.yml down --remove-orphans || true
       ignore_errors: yes
 
     # ── ECR Login ─────────────────────────────────────────────────────────
@@ -44,9 +54,9 @@
     - name: Pull latest Docker images
       shell: docker compose -f /opt/payreconcile/docker-compose.yml pull
 
-    # ── Start / restart containers ─────────────────────────────────────────
+    # ── Start containers fresh ─────────────────────────────────────────────
     - name: Start containers with updated images
-      shell: docker compose -f /opt/payreconcile/docker-compose.yml up -d --remove-orphans
+      shell: docker compose -f /opt/payreconcile/docker-compose.yml up -d
 
     # ── Clean up dangling images to free disk space ────────────────────────
     - name: Prune unused Docker images
