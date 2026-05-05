@@ -1,7 +1,7 @@
 ---
 - name: Deploy PayReconcile Application (Docker)
   hosts: all
-  become: yes
+  become: yes   # All tasks run as root — avoids docker socket permission issues
 
   tasks:
 
@@ -19,7 +19,6 @@
       shell: |
         aws ecr get-login-password --region us-east-1 | \
         docker login --username AWS --password-stdin {{ ecr_registry }}
-      become_user: ubuntu
       environment:
         AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
@@ -31,19 +30,16 @@
         dest: /opt/payreconcile/docker-compose.yml
         owner: ubuntu
         group: ubuntu
-        mode: '0600'    # Readable only by ubuntu — contains secrets
+        mode: '0600'
 
     # ── Pull latest images from ECR ────────────────────────────────────────
     - name: Pull latest Docker images
       shell: docker compose -f /opt/payreconcile/docker-compose.yml pull
-      become_user: ubuntu
 
     # ── Start / restart containers ─────────────────────────────────────────
     - name: Start containers with updated images
       shell: docker compose -f /opt/payreconcile/docker-compose.yml up -d --remove-orphans
-      become_user: ubuntu
 
     # ── Clean up dangling images to free disk space ────────────────────────
     - name: Prune unused Docker images
       shell: docker image prune -f
-      become_user: ubuntu
