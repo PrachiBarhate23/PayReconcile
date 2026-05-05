@@ -132,13 +132,13 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         // Save webhook log
-        WebhookEvent log = new WebhookEvent();
-        log.setId(event.getId());
-        log.setEventType(event.getType());
-        log.setReceivedAt(LocalDateTime.now());
-        log.setProcessingStatus("PROCESSED");
-        log.setPayload(payload);
-        webhookEventRepository.save(log);
+        WebhookEvent webhookLog = new WebhookEvent();
+        webhookLog.setId(event.getId());
+        webhookLog.setEventType(event.getType());
+        webhookLog.setReceivedAt(LocalDateTime.now());
+        webhookLog.setProcessingStatus("PROCESSED");
+        webhookLog.setPayload(payload);
+        webhookEventRepository.save(webhookLog);
 
         try {
 
