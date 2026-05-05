@@ -24,8 +24,10 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - CACHE_TYPE=redis
+      - KAFKA_BROKERS=kafka:29092
     depends_on:
       - redis
+      - kafka
     restart: unless-stopped
     networks:
       - payreconcile-net
@@ -42,6 +44,24 @@ services:
   redis:
     image: redis:7-alpine
     container_name: payreconcile-redis
+    restart: unless-stopped
+    networks:
+      - payreconcile-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    container_name: payreconcile-kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: payreconcile-cluster-1
     restart: unless-stopped
     networks:
       - payreconcile-net
