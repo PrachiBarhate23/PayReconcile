@@ -766,3 +766,5 @@ This project demonstrates:
 - ELK logging stack
 - Prometheus monitoring
 >>>>>>> Stashed changes
+   
+ 
