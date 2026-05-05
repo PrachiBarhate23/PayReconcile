@@ -20,6 +20,9 @@
         aws ecr get-login-password --region us-east-1 | \
         docker login --username AWS --password-stdin {{ ecr_registry }}
       become_user: ubuntu
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
 
     # ── Template the production docker-compose file ────────────────────────
     - name: Write production docker-compose file
