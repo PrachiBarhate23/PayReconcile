@@ -58,7 +58,7 @@ export function DashboardPage() {
         setPaymentDistribution([
           { name: 'Success', value: success, color: '#10b981' },
           { name: 'Failed', value: failed, color: '#ef4444' },
-          { name: 'Pending', value: pending, color: '#1237' },
+          { name: 'Pending', value: pending, color: '#123792' },
         ]);
 
         /* Recent activity (webhooks) */
