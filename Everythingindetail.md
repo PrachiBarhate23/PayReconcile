@@ -293,11 +293,13 @@ Extracts username + roles → sets SecurityContext
 |---|---|
 | **AWS EC2 (t3.micro)** | Production server (Ubuntu 22.04) |
 | **AWS Elastic IP** | Static public IP for EC2 instance |
-| **Nginx** | Reverse proxy — serves React frontend on port 80, proxies `/api` to backend on port 5000 |
-| **Systemd** | Manages Spring Boot JAR as a long-running background service (`payreconcile.service`) |
+| **Nginx** | Host-level reverse proxy — routes `/` to frontend container (port 3000), `/api/` to backend container (port 5000) |
+| **Docker** | Containerizes both Spring Boot backend and React frontend into portable images |
+| **Docker Compose** | Orchestrates all containers (backend, frontend, Redis) on production EC2 |
+| **AWS ECR** | Private Docker image registry — stores `payreconcile-backend` and `payreconcile-frontend` images |
 | **Terraform** | Infrastructure as Code — provisions EC2 instance, Security Groups, Elastic IP |
-| **Ansible** | Configuration management — server setup (Java, Nginx, directories), app deployment |
-| **GitHub Actions** | CI/CD pipeline — build → test → SonarCloud analysis → deploy |
+| **Ansible** | Configuration management — installs Docker on server, pulls ECR images, starts containers |
+| **GitHub Actions** | CI/CD pipeline — build → SonarCloud → Docker build & push to ECR → Ansible deploy |
 | **SonarCloud** | Static code analysis and Quality Gate enforcement |
 | **Stripe CLI** | Local webhook forwarding during development |
 
@@ -308,32 +310,38 @@ Extracts username + roles → sets SecurityContext
 ### 5.1 High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Internet / Browser                │
-└────────────────────────┬────────────────────────────┘
-                         │ HTTP Port 80
-                         ▼
-┌─────────────────────────────────────────────────────┐
-│              AWS EC2 (Ubuntu 22.04, t3.micro)        │
-│                                                      │
-│  ┌──────────────────────────────────────────────┐   │
-│  │                    Nginx                     │   │
-│  │  Port 80 → /          → React Static Files   │   │
-│  │  Port 80 → /api/      → localhost:5000        │   │
-│  └─────────────────────────┬────────────────────┘   │
-│                            │ proxy_pass               │
-│                            ▼                         │
-│  ┌─────────────────────────────────────────────┐    │
-│  │   Spring Boot JAR (payreconcile.service)    │    │
-│  │   Managed by Systemd — Port 5000            │    │
-│  └─────────────────────┬───────────────────────┘    │
-│                        │                             │
-└────────────────────────┼─────────────────────────────┘
-                         │
-              ┌──────────┼──────────┐
-              ▼          ▼          ▼
-        MongoDB       Stripe    Firebase/Twilio
-         Atlas         API        (External)
+┌─────────────────────────────────────────────────────────────┐
+│                      Internet / Browser                      │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ HTTP Port 80
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                AWS EC2 (Ubuntu 22.04, t3.micro)              │
+│                                                              │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │               Nginx (Host — Port 80)               │     │
+│  │  /        → proxy_pass http://localhost:3000        │     │
+│  │  /api/    → proxy_pass http://localhost:5000        │     │
+│  └──────────┬─────────────────────────┬───────────────┘     │
+│             │                         │                      │
+│             ▼                         ▼                      │
+│  ┌─────────────────────┐  ┌───────────────────────────┐     │
+│  │  Docker Container   │  │    Docker Container       │     │
+│  │  payreconcile-      │  │    payreconcile-backend   │     │
+│  │  frontend           │  │    Spring Boot — Port 5000│     │
+│  │  Nginx + React SPA  │  └───────────────────────────┘     │
+│  │  Port 3000          │                                     │
+│  └─────────────────────┘  ┌───────────────────────────┐     │
+│                            │    Docker Container       │     │
+│                            │    payreconcile-redis     │     │
+│                            │    Redis — Port 6379      │     │
+│                            └───────────────────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+        MongoDB Atlas    Stripe      Firebase/Twilio
+         (Cloud DB)      API          (External)
 ```
 
 **Same-Origin Architecture**: By serving both React frontend and Spring Boot backend from the same EC2 IP address through Nginx, CORS issues are completely eliminated. The frontend calls `/api/...` which Nginx transparently proxies to the backend.
@@ -379,9 +387,9 @@ Output: public_ip (static, survives reboots)
 
 ### 5.3 Server Configuration — Ansible
 
-**Files:** `ansible/setup_server.yml`, `ansible/deploy_app.yml`, `ansible/hosts.yml`, `ansible/templates/payreconcile.service.j2`
+**Files:** `ansible/setup_server.yml`, `ansible/deploy_app.yml`, `ansible/hosts.yml`, `ansible/templates/docker-compose.prod.yml.j2`
 
-#### Phase 1: `setup_server.yml` — One-time server initialization
+#### Phase 1: `setup_server.yml` — One-time server initialization (runs automatically in CI/CD)
 
 ```
 Ansible connects to EC2 via SSH
@@ -390,64 +398,79 @@ Ansible connects to EC2 via SSH
 Update apt package cache
      │
      ▼
-Install OpenJDK 17
+Install Docker Engine + Docker Compose Plugin
+     ├─ Add Docker GPG key and official repository
+     ├─ apt install docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin
+     └─ Start and enable Docker service
      │
      ▼
-Install Nginx
+Install AWS CLI (for ECR authentication)
      │
      ▼
-Create directories:
-     ├─ /opt/payreconcile/backend   (Spring Boot JAR lives here)
-     └─ /var/www/payreconcile        (React build lives here)
+Create directory: /opt/payreconcile
      │
      ▼
-Configure UFW Firewall:
-     ├─ Allow Port 80 (HTTP)
-     └─ Allow Port 5000 (Backend)
+Install Nginx (host-level reverse proxy)
      │
      ▼
-Write Nginx config to /etc/nginx/sites-available/default:
-     ├─ Serve React static files from /var/www/payreconcile
-     ├─ SPA fallback: try_files → index.html
-     └─ Proxy /api/* → http://localhost:5000
+Configure UFW: Allow Port 80
      │
      ▼
-Write Systemd service file (payreconcile.service):
-     ├─ ExecStart = java -jar /opt/payreconcile/backend/app.jar
-     ├─ Inject environment variables (Stripe keys, MongoDB URI, JWT secret)
-     ├─ Restart = always
-     └─ WantedBy = multi-user.target
+Write Nginx config — proxy to Docker containers:
+     ├─ location /        → proxy_pass http://localhost:3000 (frontend container)
+     └─ location /api/   → proxy_pass http://localhost:5000 (backend container)
      │
      ▼
-Reload Systemd → Restart Nginx
+Restart Nginx
 ```
 
 #### Phase 2: `deploy_app.yml` — Every deployment
 
 ```
-Stop payreconcile systemd service
+Ensure /opt/payreconcile directory exists
      │
      ▼
-Write updated payreconcile.service template
-(injects latest env vars from GitHub Secrets via --extra-vars)
+Stop old native systemd service (ignore if not found)
      │
      ▼
-Reload Systemd daemon
+Kill any Java process holding port 5000 (pkill -f java)
      │
      ▼
-Start payreconcile service
+Force-remove backend container if stuck (docker rm -f)
      │
      ▼
-Service restarts with new JAR + updated config
+Kill any remaining process on port 5000 (lsof -ti:5000 | kill -9)
+     │
+     ▼
+Login to Amazon ECR:
+     aws ecr get-login-password | docker login
+     (AWS credentials injected via Ansible environment vars)
+     │
+     ▼
+Template docker-compose.prod.yml → /opt/payreconcile/docker-compose.yml
+     (Ansible fills in all secrets from GitHub Secrets via --extra-vars)
+     │
+     ▼
+docker compose pull  → Pull latest images from ECR
+     │
+     ▼
+docker compose up -d → Start all containers
+     │
+     ▼
+docker image prune -f → Clean up old unused images
 ```
 
 ---
 
 ### 5.4 CI/CD Pipeline — GitHub Actions
 
-**File:** `.github/workflows/backend-deploy.yml`
+**Files:** `.github/workflows/backend-deploy.yml`, `.github/workflows/frontend-deploy.yml`
 
-**Trigger:** Any push to the `main` branch that touches files in `ecommerce-backend/**`
+**Triggers:**
+- Backend: push to `main` touching `ecommerce-backend/**`
+- Frontend: push to `main` touching `ecommerce-frontend/**`
+
+#### Backend CI/CD (`backend-deploy.yml`)
 
 ```
 Developer pushes code to main branch
@@ -455,43 +478,57 @@ Developer pushes code to main branch
      ▼
 GitHub Actions: ubuntu-latest runner
      │
-     ├─ Step 1: Checkout code (actions/checkout@v4)
+     ├─ Step 1: Checkout code
      │
-     ├─ Step 2: Setup JDK 17 (Temurin distribution, Maven cache)
+     ├─ Step 2: Setup JDK 17 (Temurin, Maven cache)
      │
-     ├─ Step 3: SSH into EC2 → Create /opt/payreconcile/backend directory
-     │           (ensures directory exists before file copy)
-     │
-     ├─ Step 4: Maven Build
-     │           cd ecommerce-backend
+     ├─ Step 3: Maven Build
      │           mvn clean package -DskipTests
-     │           → Produces: target/app.jar
+     │           → Produces: target/app.jar (for SonarCloud)
      │
-     ├─ Step 5: SonarCloud Analysis
+     ├─ Step 4: SonarCloud Analysis
      │           mvn sonar:sonar
-     │           -Dsonar.projectKey=PayReconcile
-     │           -Dsonar.organization=prachiBarhate23
      │           → Quality Gate check (continue-on-error: true)
      │
-     ├─ Step 6: Prepare Staging Area
-     │           mkdir staging/
-     │           cp target/app.jar staging/
-     │           echo "$APP_PROPS" > staging/application.properties
-     │           (application.properties injected from GitHub Secret)
+     ├─ Step 5: Configure AWS Credentials
+     │           Uses AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY secrets
      │
-     ├─ Step 7: SCP files to EC2
-     │           appleboy/scp-action
-     │           → Copies staging/* → /opt/payreconcile/backend/
+     ├─ Step 6: Login to Amazon ECR
+     │           aws-actions/amazon-ecr-login@v2
+     │           → Outputs: ECR_REGISTRY (e.g. 493644445150.dkr.ecr.us-east-1.amazonaws.com)
      │
-     ├─ Step 8: Setup Ansible SSH Key
-     │           Write EC2_SSH_KEY secret to ~/.ssh/payreconcile-key.pem
-     │           chmod 600
+     ├─ Step 7: Docker Build & Push
+     │           docker build ./ecommerce-backend
+     │           docker push ECR_REGISTRY/payreconcile-backend:latest
+     │           docker push ECR_REGISTRY/payreconcile-backend:<git-sha>
      │
-     └─ Step 9: Run Ansible Deploy Playbook
-               cd ansible
-               ansible-playbook -i hosts.yml deploy_app.yml \
-                 --extra-vars "ec2_ip=... stripe_secret=... stripe_publishable=..."
-               → Ansible stops, updates, and restarts payreconcile.service on EC2
+     ├─ Step 8: Install Ansible (pip install ansible)
+     │
+     ├─ Step 9: Write EC2 SSH Key to ~/.ssh/payreconcile-key.pem
+     │
+     └─ Step 10: Run Ansible Playbooks
+               ansible-playbook setup_server.yml  → Install Docker on EC2
+               ansible-playbook deploy_app.yml    → Pull images & start containers
+               (All secrets injected via --extra-vars)
+```
+
+#### Frontend CI/CD (`frontend-deploy.yml`)
+
+```
+Developer pushes code to main branch
+     │
+     ▼
+     ├─ Step 1: Checkout code
+     ├─ Step 2: Setup Node.js 22
+     ├─ Step 3: npm install (for SonarCloud)
+     ├─ Step 4: SonarCloud Analysis
+     ├─ Step 5: Configure AWS Credentials
+     ├─ Step 6: Login to Amazon ECR
+     ├─ Step 7: Docker Build & Push
+     │           docker build --build-arg VITE_API_BASE_URL=/api \
+     │                        --build-arg VITE_STRIPE_PUBLISHABLE_KEY=...
+     │           docker push ECR_REGISTRY/payreconcile-frontend:latest
+     └─ Step 8: Run Ansible Playbooks (same as backend)
 ```
 
 **GitHub Secrets used:**
@@ -500,10 +537,16 @@ GitHub Actions: ubuntu-latest runner
 |---|---|
 | `EC2_HOST` | EC2 Elastic IP address |
 | `EC2_SSH_KEY` | Private key (.pem) for SSH/SCP access |
+| `EC2_USER` | SSH username (`ubuntu`) |
+| `AWS_ACCESS_KEY_ID` | AWS IAM user key — for ECR push |
+| `AWS_SECRET_ACCESS_KEY` | AWS IAM user secret — for ECR push |
 | `SONAR_TOKEN` | SonarCloud authentication |
-| `APPLICATION_PROPERTIES` | Full `application.properties` file content with all secrets |
-| `STRIPE_SECRET_KEY` | Stripe secret key (injected as Ansible extra-var) |
+| `STRIPE_SECRET_KEY` | Stripe secret key |
 | `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signature secret (`whsec_...`) |
+| `MONGODB_URI` | Full MongoDB Atlas connection string |
+| `MAIL_USERNAME` | AWS SES SMTP username |
+| `MAIL_PASSWORD` | AWS SES SMTP password |
 
 ---
 
@@ -597,12 +640,12 @@ Check idempotency: has this eventId been processed?
 
 ### Phase 1 — Infrastructure Hardening
 
-| Enhancement | Details |
-|---|---|
-| **Docker Containerization** | Dockerize Spring Boot backend and React frontend. Create `docker-compose.yml` for local full-stack development with MongoDB, Redis, Kafka all in containers. |
-| **Kubernetes (K8s) Deployment** | Deploy to AWS EKS or self-hosted K8s. Define Deployment, Service, ConfigMap, and Secret manifests. Enable horizontal pod autoscaling (HPA) for the backend. |
-| **HTTPS / SSL Certificate** | Use AWS Certificate Manager (ACM) or Let's Encrypt (Certbot) with Nginx to enable TLS on port 443. |
-| **AWS Application Load Balancer** | Distribute traffic across multiple EC2 / pod instances. Enable health checks and auto-recovery. |
+| Enhancement | Status | Details |
+|---|---|---|
+| **Docker Containerization** | ✅ **DONE** | Backend and frontend fully Dockerized. Images built in GitHub Actions and pushed to AWS ECR. Containers orchestrated on EC2 via Docker Compose. Local dev supported via `docker-compose.yml`. |
+| **Kubernetes (K8s) Deployment** | 🔜 Planned | Deploy to AWS EKS or self-hosted K8s. Define Deployment, Service, ConfigMap, and Secret manifests. Enable horizontal pod autoscaling (HPA) for the backend. |
+| **HTTPS / SSL Certificate** | 🔜 Planned | Use AWS Certificate Manager (ACM) or Let's Encrypt (Certbot) with Nginx to enable TLS on port 443. |
+| **AWS Application Load Balancer** | 🔜 Planned | Distribute traffic across multiple EC2 / pod instances. Enable health checks and auto-recovery. |
 
 ### Phase 2 — Observability & Monitoring
 
@@ -645,4 +688,76 @@ Check idempotency: has this eventId been processed?
 
 ---
 
-*Documentation generated: May 2026 | Version: 2.0.0 | Status: Production Deployed*
+## 7. Docker Integration (Implemented — May 2026)
+
+### 7.1 New Files Added
+
+| File | Purpose |
+|---|---|
+| `ecommerce-backend/Dockerfile` | Multi-stage: Maven builds JAR in Stage 1, JRE-alpine runs it in Stage 2 |
+| `ecommerce-backend/.dockerignore` | Excludes `target/`, `.idea/`, `deploy.zip` from Docker build context |
+| `ecommerce-frontend/Dockerfile` | Multi-stage: Node builds React SPA in Stage 1, Nginx serves it in Stage 2 |
+| `ecommerce-frontend/.dockerignore` | Excludes `node_modules/`, `dist/`, `.env*` |
+| `ecommerce-frontend/nginx.conf` | Nginx config **inside** the frontend container — React Router SPA support, caching, security headers |
+| `docker-compose.yml` | Root-level file for **local development** — runs backend, frontend, Redis together |
+| `.env.example` | Template for local secrets — copy to `.env` and fill in values |
+| `ansible/templates/docker-compose.prod.yml.j2` | Jinja2 template Ansible fills with secrets and deploys to EC2 |
+
+### 7.2 Files Modified
+
+| File | What Changed |
+|---|---|
+| `.github/workflows/backend-deploy.yml` | Added ECR login, Docker build & push, removed SCP/JAR copy steps |
+| `.github/workflows/frontend-deploy.yml` | Added ECR login, Docker build with VITE_ build args & push |
+| `ansible/setup_server.yml` | Now installs Docker + AWS CLI instead of Java. Nginx proxies to containers on :3000 and :5000 |
+| `ansible/deploy_app.yml` | Replaced systemd approach with ECR pull → docker compose up |
+| `.gitignore` | Added `.env` to prevent local secrets from being committed |
+
+### 7.3 How Local Development Works Now
+
+```bash
+# 1. Copy environment template
+cp .env.example .env
+# 2. Fill in real values in .env
+
+# 3. Start everything
+docker compose up --build
+
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:5000
+# Redis:    localhost:6379
+```
+
+### 7.4 How Production Deployment Works Now
+
+```
+Push to main branch
+     │
+     ▼
+GitHub Actions builds Docker image
+     │
+     ▼
+Pushes to AWS ECR (payreconcile-backend / payreconcile-frontend)
+     │
+     ▼
+Ansible runs on EC2:
+  1. Installs Docker (if not present)
+  2. Logs into ECR using AWS credentials
+  3. Writes docker-compose.yml with secrets
+  4. docker compose pull → docker compose up -d
+     │
+     ▼
+Containers running:
+  ├─ payreconcile-frontend  (port 3000)
+  ├─ payreconcile-backend   (port 5000)
+  └─ payreconcile-redis     (internal)
+     │
+     ▼
+Host Nginx proxies:
+  /      → localhost:3000
+  /api/  → localhost:5000
+```
+
+---
+
+*Documentation generated: May 2026 | Version: 3.0.0 | Status: Production Deployed with Docker + ECR*
