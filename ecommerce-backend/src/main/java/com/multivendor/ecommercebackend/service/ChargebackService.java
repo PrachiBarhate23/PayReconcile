@@ -68,9 +68,14 @@ public class ChargebackService {
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
-                targetEmail = user.getEmail();
-            }
+            // TEMPORARY FIX: While AWS SES is in Sandbox mode, we MUST send to the verified email
+            // (prachi.barhate23@spit.ac.in). If we use the email from the database, and it's not
+            // verified in AWS, the email will be blocked.
+            //
+            // if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+            //     targetEmail = user.getEmail();
+            // }
+            
             if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
                 targetPhone = user.getPhoneNumber();
             }
