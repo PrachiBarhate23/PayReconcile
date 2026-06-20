@@ -6,7 +6,7 @@ import { getProducts } from "../../api/products";
 import api from "../../api/api";
 import StripePaymentForm from "../StripePaymentForm";
 
-const stripePromise = loadStripe("pk_test_51SyUr30XUn5ie1q7w4ERPoSHadGsEAKPyJBHRZJaNvcafD9O3S5xr6T4hvzIb9ew1IKg5WW9VmCACp9yRye5wBkG00kEetFGJV");
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 interface Product { id: string; name: string; description: string; price: number; originalPrice: number; category: string; brand: string; imageUrl: string; rating: number; reviewCount: number; inStock: boolean; badge?: string; }
 interface CartItem { product: Product; qty: number; }
