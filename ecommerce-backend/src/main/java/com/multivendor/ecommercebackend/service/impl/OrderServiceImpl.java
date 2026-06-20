@@ -17,6 +17,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final com.multivendor.ecommercebackend.service.ReconciliationJobService reconciliationJobService;
 
     /* =========================
        SECURITY HELPERS (USER APIs ONLY)
@@ -105,7 +106,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderInternal(orderId);
         order.setStatus(OrderStatus.PAYMENT_PENDING);
         order.setUpdatedAt(LocalDateTime.now());
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+        reconciliationJobService.createOrUpdateJob(orderId, null, order.getUsername());
+        return order;
     }
 
     @Override
@@ -113,7 +116,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderInternal(orderId);
         order.setStatus(OrderStatus.PAID);
         order.setUpdatedAt(LocalDateTime.now());
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+        reconciliationJobService.createOrUpdateJob(orderId, null, order.getUsername());
+        return order;
     }
 
     @Override
@@ -121,7 +126,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderInternal(orderId);
         order.setStatus(OrderStatus.FAILED);
         order.setUpdatedAt(LocalDateTime.now());
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+        reconciliationJobService.createOrUpdateJob(orderId, null, order.getUsername());
+        return order;
     }
 
     @Override
@@ -129,7 +136,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderInternal(orderId);
         order.setStatus(OrderStatus.REFUNDED);
         order.setUpdatedAt(LocalDateTime.now());
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+        reconciliationJobService.createOrUpdateJob(orderId, null, order.getUsername());
+        return order;
     }
 
     @Override

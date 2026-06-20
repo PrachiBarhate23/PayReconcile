@@ -6,7 +6,11 @@ import java.util.List;
 
 public interface ReconciliationService {
 
-    void reconcileOrders();
+    void reconcileOrders(); // Legacy method
+    
+    void processPendingJobs();
 
     List<ReconciliationMismatchDTO> getAllMismatches();
+
+    java.util.Map<String, String> simulateMismatch();
 }

@@ -13,7 +13,7 @@ export function StatusBadge({ status, type = 'payment' }: StatusBadgeProps) {
     if (upperStatus === 'SUCCESS' || upperStatus === 'SUCCEEDED' || upperStatus === 'PAID') {
       return 'bg-green-100 text-green-700 border-green-200';
     }
-    if (upperStatus === 'FAILED') {
+    if (upperStatus === 'FAILED' || upperStatus === 'CANCELLED') {
       return 'bg-red-100 text-red-700 border-red-200';
     }
     if (upperStatus === 'PENDING' || upperStatus === 'PAYMENT_PENDING') {

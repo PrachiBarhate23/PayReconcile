@@ -38,6 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final LedgerService ledgerService;
     private final WebhookEventRepository webhookEventRepository;
+    private final com.multivendor.ecommercebackend.service.ReconciliationJobService reconciliationJobService;
 
     @Value("${stripe.webhook.secret}")
     private String stripeWebhookSecret;
@@ -96,6 +97,7 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.save(payment);
 
             orderService.markPaymentPending(orderId);
+            reconciliationJobService.createOrUpdateJob(orderId, payment.getId(), username);
 
             return Map.of(
                     "clientSecret", paymentIntent.getClientSecret(),
@@ -200,11 +202,13 @@ public class PaymentServiceImpl implements PaymentService {
 
             orderService.markOrderPaid(payment.getOrderId());
 
-            ledgerService.recordDebit(
+            ledgerService.recordCredit(
                     payment.getOrderId(),
                     payment.getAmount(),
                     payment.getUsername()
             );
+            
+            reconciliationJobService.createOrUpdateJob(payment.getOrderId(), payment.getId(), payment.getUsername());
 
             log.info("Payment marked SUCCESS for gateway ID: {}", gatewayPaymentId);
 
@@ -238,6 +242,7 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.save(payment);
 
             orderService.markOrderFailed(orderId);
+            reconciliationJobService.createOrUpdateJob(orderId, payment.getId(), payment.getUsername());
 
         } catch (Exception e) {
             log.error("Error marking payment failed for: {}", gatewayPaymentId, e);
@@ -262,7 +267,7 @@ public class PaymentServiceImpl implements PaymentService {
                         throw new RuntimeException("Stripe refund failed", e);
                     }
 
-                    ledgerService.recordCredit(
+                    ledgerService.recordDebit(
                             payment.getOrderId(),
                             payment.getAmount(),
                             payment.getUsername()
@@ -270,6 +275,7 @@ public class PaymentServiceImpl implements PaymentService {
 
                     payment.setStatus(PaymentStatus.REFUNDED);
                     paymentRepository.save(payment);
+                    reconciliationJobService.createOrUpdateJob(payment.getOrderId(), payment.getId(), payment.getUsername());
                 });
     }
 

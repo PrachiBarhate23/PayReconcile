@@ -14,6 +14,6 @@ public class ReconciliationScheduler {
     // Runs every 5 minutes
     @Scheduled(fixedDelay = 300000)
     public void runReconciliation() {
-        reconciliationService.reconcileOrders();
+        reconciliationService.processPendingJobs();
     }
 }

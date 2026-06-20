@@ -69,8 +69,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Public endpoints required for AWS Load Balancer Health Checks
-                        .requestMatchers("/", "/health", "/api/health").permitAll()
+                        // Public endpoints required for AWS Load Balancer Health Checks and errors
+                        .requestMatchers("/", "/health", "/api/health", "/error").permitAll()
 
                         .requestMatchers("/api/auth/**").permitAll()
 
@@ -81,6 +81,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/webhook/stripe/logs").hasRole("ADMIN")
 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/reconciliation/**").hasRole("ADMIN")
                         .requestMatchers("/api/orders/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/payments/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/ledger/**").hasAnyRole("USER", "ADMIN")

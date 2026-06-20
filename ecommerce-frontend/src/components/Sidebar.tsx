@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, CreditCard, BookOpen, RefreshCw, Webhook, Users, TrendingUp, AlertTriangle, Wallet, Download } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, CreditCard, BookOpen, RefreshCw, Webhook, Users, TrendingUp, AlertTriangle, Wallet, Download, Store } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function Sidebar() {
@@ -10,6 +10,7 @@ export function Sidebar() {
   // Public menu items (visible to all users)
   const publicMenuItems = [
     { id: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: '/shop', label: 'Shop', icon: Store },
     { id: '/orders', label: 'Orders', icon: ShoppingCart },
     { id: '/payments', label: 'Payments', icon: CreditCard },
     { id: '/ledger', label: 'Ledger', icon: BookOpen },
@@ -27,7 +28,9 @@ export function Sidebar() {
   ];
 
   // Combine menu items based on role
-  const menuItems = isAdmin ? [...publicMenuItems, ...adminMenuItems] : publicMenuItems;
+  const menuItems = isAdmin 
+    ? [...publicMenuItems.filter(item => item.id !== '/shop'), ...adminMenuItems] 
+    : publicMenuItems;
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col overflow-y-auto">

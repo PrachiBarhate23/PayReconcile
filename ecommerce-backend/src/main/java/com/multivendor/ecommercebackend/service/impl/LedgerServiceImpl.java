@@ -2,6 +2,7 @@ package com.multivendor.ecommercebackend.service.impl;
 
 import com.multivendor.ecommercebackend.model.LedgerEntry;
 import com.multivendor.ecommercebackend.repository.LedgerRepository;
+import com.multivendor.ecommercebackend.repository.UserRepository;
 import com.multivendor.ecommercebackend.service.LedgerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ import java.util.List;
 public class LedgerServiceImpl implements LedgerService {
 
     private final LedgerRepository ledgerRepository;
+    private final UserRepository userRepository;
 
     /* =========================
        Helper Methods
@@ -43,6 +45,12 @@ public class LedgerServiceImpl implements LedgerService {
         ledgerRepository.save(
                 LedgerEntry.debit(orderId, amount, orderId, username)
         );
+
+        // When a refund happens (Debit to Admin), the User's wallet gets credited
+        userRepository.findByUsername(username).ifPresent(user -> {
+            user.setAccountBalance((user.getAccountBalance() != null ? user.getAccountBalance() : 0.0) + amount);
+            userRepository.save(user);
+        });
     }
 
     @Override
@@ -59,6 +67,11 @@ public class LedgerServiceImpl implements LedgerService {
         ledgerRepository.save(
                 LedgerEntry.reversal(orderId, amount, orderId, username)
         );
+
+        userRepository.findByUsername(username).ifPresent(user -> {
+            user.setAccountBalance((user.getAccountBalance() != null ? user.getAccountBalance() : 0.0) + amount);
+            userRepository.save(user);
+        });
     }
 
     /* =========================

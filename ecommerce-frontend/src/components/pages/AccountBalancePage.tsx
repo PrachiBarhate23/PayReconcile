@@ -26,15 +26,43 @@ export function AccountBalancePage() {
 
   const fetchBalanceData = async () => {
     try {
-      // Fetch user profile to get balance
-      const res = await api.get("/users/me");
+      const isAdmin = user?.role === "ADMIN" || user?.role === "ROLE_ADMIN";
+      
+      let currentBal = 0;
+      let totalEarn = 0;
+      let totalPay = 0;
+      let pendingBal = 0;
+      let currency = "USD";
+      let userId = "";
+
+      if (isAdmin) {
+        // Fetch all users to sum global balance
+        const allUsersRes = await api.get("/users");
+        const users = allUsersRes.data || [];
+        
+        currentBal = users.reduce((acc: number, u: any) => acc + (u.accountBalance || 0), 0);
+        totalEarn = users.reduce((acc: number, u: any) => acc + (u.totalEarnings || 0), 0);
+        totalPay = users.reduce((acc: number, u: any) => acc + (u.totalPayouts || 0), 0);
+        pendingBal = users.reduce((acc: number, u: any) => acc + (u.pendingBalance || 0), 0);
+        userId = "admin-global";
+      } else {
+        // Fetch specific user profile
+        const res = await api.get("/users/me");
+        currentBal = res.data.accountBalance || 0;
+        totalEarn = res.data.totalEarnings || 0;
+        totalPay = res.data.totalPayouts || 0;
+        pendingBal = res.data.pendingBalance || 0;
+        currency = res.data.preferredCurrency || "USD";
+        userId = res.data.id;
+      }
+
       setBalanceData({
-        userId: res.data.id,
-        currentBalance: res.data.accountBalance || 0,
-        totalEarnings: res.data.totalEarnings || 0,
-        totalPayouts: res.data.totalPayouts || 0,
-        pendingBalance: res.data.pendingBalance || 0,
-        currency: res.data.preferredCurrency || "USD",
+        userId,
+        currentBalance: currentBal,
+        totalEarnings: totalEarn,
+        totalPayouts: totalPay,
+        pendingBalance: pendingBal,
+        currency,
         lastUpdated: new Date().toISOString(),
       });
 

@@ -9,6 +9,7 @@ import { OrdersPage } from "./components/pages/OrdersPage";
 import { PaymentsPage } from "./components/pages/PaymentsPage";
 import { LedgerPage } from "./components/pages/LedgerPage";
 import { ReconciliationPage } from "./components/pages/ReconciliationPage";
+import { CustomerStorefront } from "./components/pages/CustomerStorefront";
 import { WebhookLogsPage } from "./components/pages/WebhookLogsPage";
 
 import { LoginPage } from "./components/pages/LoginPage";
@@ -84,6 +85,7 @@ export default function App() {
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/shop" element={<CustomerStorefront />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/payments" element={<PaymentsPage />} />
