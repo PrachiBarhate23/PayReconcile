@@ -74,6 +74,12 @@ public class ReconciliationServiceImpl implements ReconciliationService {
             return;
         }
 
+        // ✅ Guard: skip orders already in a terminal state to prevent re-processing
+        if (order.getStatus() == OrderStatus.REFUNDED || order.getStatus() == OrderStatus.CANCELLED) {
+            markJobCompleted(job, "Order already in terminal state: " + order.getStatus() + ", skipped");
+            return;
+        }
+
         Payment payment = null;
         if (job.getPaymentId() != null) {
             payment = paymentRepository.findById(job.getPaymentId()).orElse(null);
@@ -84,6 +90,12 @@ public class ReconciliationServiceImpl implements ReconciliationService {
 
         if (payment == null || payment.getGatewayPaymentId() == null) {
             markJobCompleted(job, "No payment or gateway ID found");
+            return;
+        }
+
+        // ✅ Guard: skip payments already refunded
+        if (payment.getStatus() == PaymentStatus.REFUNDED) {
+            markJobCompleted(job, "Payment already REFUNDED, skipped");
             return;
         }
 

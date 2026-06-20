@@ -60,7 +60,9 @@ public class ChargebackService {
         }
 
         // Send notifications
-        Optional<User> userOpt = userRepository.findById(userId);
+        // NOTE: The 'userId' param is actually the username (not MongoDB _id).
+        // We look up by username to correctly find the user's email.
+        Optional<User> userOpt = userRepository.findByUsername(userId);
         String targetEmail = "prachi.barhate23@spit.ac.in";
         String targetPhone = "+919422989616";
 

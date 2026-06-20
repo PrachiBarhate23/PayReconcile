@@ -275,7 +275,9 @@ public class PaymentServiceImpl implements PaymentService {
 
                     payment.setStatus(PaymentStatus.REFUNDED);
                     paymentRepository.save(payment);
-                    reconciliationJobService.createOrUpdateJob(payment.getOrderId(), payment.getId(), payment.getUsername());
+                    // NOTE: Do NOT re-queue a reconciliation job here.
+                    // Re-queuing after a refund causes the reconciler to pick up the
+                    // REFUNDED order again and incorrectly post a duplicate CREDIT entry.
                 });
     }
 

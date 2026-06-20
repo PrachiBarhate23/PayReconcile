@@ -13,7 +13,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    @org.springframework.beans.factory.annotation.Value("${mail.from.address:sahasi.alertas@gmail.com}")
+    @org.springframework.beans.factory.annotation.Value("${mail.from.address:sahasi.alerts@gmail.com}")
     private String fromAddress;
 
     public void sendEmail(String to, String subject, String body) {
