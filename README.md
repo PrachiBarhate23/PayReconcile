@@ -1,6 +1,6 @@
 # 💳 PayReconcile
 
-### AI-Ready Distributed Payment Reconciliation Engine
+### Automated and Distributed Payment Reconciliation Engine
 
 > Automatically detect, reconcile, and recover payment-order inconsistencies using Stripe webhooks, Spring Boot, MongoDB, and AWS.
 
